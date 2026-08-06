@@ -30,14 +30,18 @@ export async function facebookLogin(req, res) {
   url.searchParams.set('client_id', APP_ID)
   url.searchParams.set('redirect_uri', REDIRECT_URI)
   url.searchParams.set(
+  'config_id',
+  '1726342991977666'
+)
+  url.searchParams.set(
     'scope',
-    [
-      'public_profile',
-      'pages_show_list',
-      'pages_read_engagement',
-      'pages_read_user_content',
-      'pages_manage_metadata',
-    ].join(',')
+   [
+  'public_profile',
+  'pages_show_list',
+  'pages_read_engagement',
+  'pages_manage_posts',
+  'business_management'
+].join(',')
   )
 
   res.writeHead(302, {

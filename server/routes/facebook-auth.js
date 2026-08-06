@@ -133,8 +133,11 @@ export async function facebookCallback(req, res) {
     const userAccessToken = text(tokenData.access_token)
 
     const accountsUrl = new URL('https://graph.facebook.com/v26.0/me/accounts')
-    accountsUrl.searchParams.set('access_token', userAccessToken)
 
+accountsUrl.searchParams.set(
+  'fields',
+  'id,name,access_token,tasks'
+)
     const accountsResponse = await fetch(accountsUrl.toString())
     const accountsData = await readJson(accountsResponse)
 

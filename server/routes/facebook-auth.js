@@ -111,35 +111,24 @@ export async function facebookCallback(req, res) {
     tokenUrl.searchParams.set('redirect_uri', REDIRECT_URI)
     tokenUrl.searchParams.set('code', code)
 
-    const tokenResponse = await fetch(tokenUrl.toString())
-    const tokenData = await readJson(tokenResponse)
+   const userAccessToken = text(tokenData.access_token)
 
-    if (!tokenResponse.ok) {
-      res.writeHead(tokenResponse.status, { 'Content-Type': 'application/json; charset=utf-8' })
-      res.end(
-        JSON.stringify(
-          {
-            ok: false,
-            stage: 'user_access_token',
-            error: tokenData,
-          },
-          null,
-          2
-        )
-      )
-      return
-    }
-
-    const userAccessToken = text(tokenData.access_token)
-
-    const accountsUrl = new URL('https://graph.facebook.com/v26.0/me/accounts')
+const accountsUrl = new URL(
+  'https://graph.facebook.com/v26.0/me/accounts'
+)
 
 accountsUrl.searchParams.set(
   'fields',
   'id,name,access_token,tasks'
 )
-    const accountsResponse = await fetch(accountsUrl.toString())
-    const accountsData = await readJson(accountsResponse)
+
+accountsUrl.searchParams.set(
+  'access_token',
+  userAccessToken
+)
+
+const accountsResponse = await fetch(accountsUrl.toString())
+const accountsData = await readJson(accountsResponse)
     console.log(accountsData)
     if (!accountsResponse.ok) {
       res.writeHead(accountsResponse.status, { 'Content-Type': 'application/json; charset=utf-8' })

@@ -105,13 +105,57 @@ export async function facebookCallback(req, res) {
   }
 
   try {
-    const tokenUrl = new URL('https://graph.facebook.com/v26.0/oauth/access_token')
-    tokenUrl.searchParams.set('client_id', APP_ID)
-    tokenUrl.searchParams.set('client_secret', APP_SECRET)
-    tokenUrl.searchParams.set('redirect_uri', REDIRECT_URI)
-    tokenUrl.searchParams.set('code', code)
+   const tokenUrl = new URL(
+  'https://graph.facebook.com/v26.0/oauth/access_token'
+)
 
-   const userAccessToken = text(tokenData.access_token)
+tokenUrl.searchParams.set('client_id', APP_ID)
+tokenUrl.searchParams.set('client_secret', APP_SECRET)
+tokenUrl.searchParams.set('redirect_uri', REDIRECT_URI)
+tokenUrl.searchParams.set('code', code)
+
+const tokenResponse = await fetch(tokenUrl.toString())
+const tokenData = await readJson(tokenResponse)
+
+console.log('TOKEN STATUS:', tokenResponse.status)
+console.log('TOKEN DATA:')
+console.log(JSON.stringify(tokenData, null, 2))
+
+if (!tokenResponse.ok) {
+  res.writeHead(tokenResponse.status, {
+    'Content-Type': 'application/json; charset=utf-8',
+  })
+
+  res.end(
+    JSON.stringify(
+      {
+        ok: false,
+        stage: 'user_access_token',
+        error: tokenData,
+      },
+      null,
+      2
+    )
+  )
+
+  return
+}
+
+const userAccessToken = text(tokenData.access_token)
+
+console.log('USER TOKEN LENGTH:', userAccessToken.length)
+console.log('USER TOKEN PREFIX:', userAccessToken.substring(0, 20))
+
+const meResponse = await fetch(
+  `https://graph.facebook.com/v26.0/me?access_token=${encodeURIComponent(
+    userAccessToken
+  )}`
+)
+
+const meData = await readJson(meResponse)
+
+console.log('ME STATUS:', meResponse.status)
+console.log(JSON.stringify(meData, null, 2))
 
 const accountsUrl = new URL(
   'https://graph.facebook.com/v26.0/me/accounts'
@@ -127,8 +171,13 @@ accountsUrl.searchParams.set(
   userAccessToken
 )
 
+console.log(accountsUrl.toString())
+
 const accountsResponse = await fetch(accountsUrl.toString())
 const accountsData = await readJson(accountsResponse)
+
+console.log('ACCOUNTS STATUS:', accountsResponse.status)
+console.log(JSON.stringify(accountsData, null, 2))
     console.log(accountsData)
     if (!accountsResponse.ok) {
       res.writeHead(accountsResponse.status, { 'Content-Type': 'application/json; charset=utf-8' })

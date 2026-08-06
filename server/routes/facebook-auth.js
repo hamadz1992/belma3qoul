@@ -105,6 +105,7 @@ export async function facebookCallback(req, res) {
   }
 
   try {
+    console.log('FACEBOOK AUTH VERSION: 2')
    const tokenUrl = new URL(
   'https://graph.facebook.com/v26.0/oauth/access_token'
 )

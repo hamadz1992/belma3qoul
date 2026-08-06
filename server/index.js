@@ -217,6 +217,6 @@ if (method === 'POST' && url.pathname === '/api/admin/featured-posts') {
   sendText(res, 405, 'Method Not Allowed')
 })
 
-server.listen(port, '127.0.0.1', () => {
-  console.log(`Facebook API server is running on http://127.0.0.1:${port}`)
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on port ${port}`)
 })

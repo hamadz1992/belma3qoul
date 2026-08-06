@@ -147,7 +147,25 @@ if (!tokenResponse.ok) {
 }
 
 const userAccessToken = text(tokenData.access_token)
+const debugUrl = new URL(
+  'https://graph.facebook.com/v26.0/debug_token'
+)
 
+debugUrl.searchParams.set(
+  'input_token',
+  userAccessToken
+)
+
+debugUrl.searchParams.set(
+  'access_token',
+  `${APP_ID}|${APP_SECRET}`
+)
+
+const debugResponse = await fetch(debugUrl.toString())
+const debugData = await readJson(debugResponse)
+
+console.log('DEBUG TOKEN:')
+console.log(JSON.stringify(debugData, null, 2))
 console.log('USER TOKEN LENGTH:', userAccessToken.length)
 console.log('USER TOKEN PREFIX:', userAccessToken.substring(0, 20))
 

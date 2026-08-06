@@ -3,7 +3,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const REDIRECT_URI =
-  'http://127.0.0.1:8787/auth/facebook/callback'
+  'https://belma3qoul.onrender.com/auth/facebook/callback'
+  console.log('REDIRECT_URI =', REDIRECT_URI)
 
 export async function facebookLogin(req, res) {
   const APP_ID = process.env.FACEBOOK_APP_ID

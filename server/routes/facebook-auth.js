@@ -187,24 +187,52 @@ console.log(JSON.stringify(pageTestData, null, 2))
 console.log('ME STATUS:', meResponse.status)
 console.log(JSON.stringify(meData, null, 2))
 
-const accountsUrl = new URL(
-  'https://graph.facebook.com/v26.0/me/accounts'
+const PAGE_ID = '2330896763591463'
+
+const pageUrl = new URL(
+  `https://graph.facebook.com/v26.0/${PAGE_ID}`
 )
 
-accountsUrl.searchParams.set(
+pageUrl.searchParams.set(
   'fields',
-  'id,name,access_token,tasks,perms'
+  'id,name,access_token'
 )
 
-accountsUrl.searchParams.set(
+pageUrl.searchParams.set(
   'access_token',
   userAccessToken
 )
 
-console.log(accountsUrl.toString())
+console.log(pageUrl.toString())
 
-const accountsResponse = await fetch(accountsUrl.toString())
-const accountsData = await readJson(accountsResponse)
+const pageResponse = await fetch(pageUrl.toString())
+const pageData = await readJson(pageResponse)
+
+console.log('PAGE STATUS:', pageResponse.status)
+console.log(JSON.stringify(pageData, null, 2))
+
+if (!pageResponse.ok) {
+  res.writeHead(pageResponse.status, {
+    'Content-Type': 'application/json; charset=utf-8'
+  })
+
+  res.end(
+    JSON.stringify(
+      {
+        ok: false,
+        stage: 'page',
+        error: pageData,
+      },
+      null,
+      2
+    )
+  )
+
+  return
+}
+
+const pages = [pageData]
+const firstPage = pageData
 
 console.log('ACCOUNTS STATUS:', accountsResponse.status)
 console.log(JSON.stringify(accountsData, null, 2))

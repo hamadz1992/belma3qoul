@@ -176,7 +176,14 @@ const meResponse = await fetch(
 )
 
 const meData = await readJson(meResponse)
+const pageTest = await fetch(
+  `https://graph.facebook.com/v26.0/2330896763591463?fields=id,name&access_token=${encodeURIComponent(userAccessToken)}`
+)
 
+const pageTestData = await readJson(pageTest)
+
+console.log('PAGE TEST STATUS:', pageTest.status)
+console.log(JSON.stringify(pageTestData, null, 2))
 console.log('ME STATUS:', meResponse.status)
 console.log(JSON.stringify(meData, null, 2))
 

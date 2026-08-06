@@ -186,7 +186,7 @@ const accountsUrl = new URL(
 
 accountsUrl.searchParams.set(
   'fields',
-  'id,name,access_token,tasks'
+  'id,name,access_token,tasks,perms'
 )
 
 accountsUrl.searchParams.set(

@@ -140,7 +140,7 @@ accountsUrl.searchParams.set(
 )
     const accountsResponse = await fetch(accountsUrl.toString())
     const accountsData = await readJson(accountsResponse)
-
+    console.log(accountsData)
     if (!accountsResponse.ok) {
       res.writeHead(accountsResponse.status, { 'Content-Type': 'application/json; charset=utf-8' })
       res.end(

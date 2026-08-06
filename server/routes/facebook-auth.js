@@ -253,10 +253,7 @@ console.log(JSON.stringify(accountsData, null, 2))
       return
     }
 
-    const pages = Array.isArray(accountsData.data) ? accountsData.data : []
-    const firstPage = pages[0] || null
-
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' })
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' })
     res.end(
       JSON.stringify(
         {

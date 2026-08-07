@@ -166,15 +166,17 @@ async function handleFacebookPosts(req, res, url) {
       posts,
       fetchedAt: new Date().toISOString(),
     })
-  } catch (error) {
-    const status = typeof error?.status === 'number' ? error.status : 503
-    sendJson(res, status, {
-     "success": false,
-      source: 'facebook',
-      posts: [],
-      error: "Unable to fetch Facebook posts."
-    })
-  }
+  } 
+  catch (error) {
+  const status = typeof error?.status === 'number' ? error.status : 503
+
+  sendJson(res, status, {
+    success: false,
+    source: 'facebook',
+    posts: [],
+    error: error.message,
+  })
+}
 }
 
 const server = http.createServer(async (req, res) => {

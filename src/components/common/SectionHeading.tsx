@@ -24,10 +24,10 @@ function SectionHeading({
       </p>
 
       <h2
-        className={`mt-3 text-4xl font-black text-slate-950 ${titleClassName}`}
-      >
-        {title}
-      </h2>
+  className={`mt-3 font-black text-slate-950 ${titleClassName || 'text-4xl'}`}
+>
+  {title}
+</h2>
 
       {description ? (
         <p

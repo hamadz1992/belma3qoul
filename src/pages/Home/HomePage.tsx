@@ -164,8 +164,8 @@ function HomePage() {
             <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <SectionHeading
                 eyebrow="آخر المنشورات"
-                  titleClassName="text-3xl"
-                title="آخر جديد في كل شيء بالمعقول"
+                  titleClassName="text-lg"
+                title=" جديد في بزار كل شيء بالمعقول"
                 descriptionClassName="text-sm leading-6"
 
               />

@@ -106,17 +106,16 @@ export async function fetchFacebookPosts({ limit = 4 } = {}) {
   endpoint.searchParams.set('limit', String(safeLimit))
   endpoint.searchParams.set('access_token', getAccessToken())
   const response = await fetch(endpoint)
-  if (!response.ok) {
-    const body = await response.text().catch(() => '')
-console.error(
-  `Facebook API Error (${response.status})`
-)
-const error = new Error(
-  body || 'Unable to fetch Facebook posts.'
-)
-error.status = response.status
-throw error
-      }
+ if (!response.ok) {
+  const body = await response.text().catch(() => '')
+
+  console.error('Facebook API Error:', response.status)
+  console.error(body)
+
+  const error = new Error(body)
+  error.status = response.status
+  throw error
+}
 
   const payload = await response.json()
 

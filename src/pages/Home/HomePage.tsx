@@ -236,8 +236,9 @@ function HomePage() {
             >
               <SectionHeading
                 eyebrow="الموقع"
-                title="الوصول إلى المحل"
-               description="الاتجاه نحوى المحل."             
+               title="الاتجاه نحوى المحل."
+               titleClassName="text-lg"
+               description=""             
   descriptionClassName="text-sm leading-6"
 />
               <div className="mt-6">

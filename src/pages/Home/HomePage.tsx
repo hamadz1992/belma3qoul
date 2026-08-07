@@ -82,8 +82,8 @@ function HomePage() {
               eyebrow="روابط التواصل"
               title="تواصل معنا"
               description=""
+              descriptionClassName="text-sm leading-6"
             />
-
             <div className="mt-6 space-y-3">
               {socialLinks.map((link) => {
                 const accentClass = platformAccent[link.platform] || 'bg-slate-900 text-white'
@@ -237,8 +237,9 @@ function HomePage() {
               <SectionHeading
                 eyebrow="الموقع"
                 title="الوصول إلى المحل"
-               description="الاتجاه نحوى المحل."             />
-
+               description="الاتجاه نحوى المحل."             
+  descriptionClassName="text-sm leading-6"
+/>
               <div className="mt-6">
                 <div className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-slate-50">
                   <iframe
@@ -263,20 +264,25 @@ function HomePage() {
                 </div>
                              </div>
             </article>
-
             <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <SectionHeading
-                eyebrow="نبذة عن المحل"
-                title="كل شيء بالمعقول"
-                description="محل شامل يوفّر المنتجات المتنوعة بأسعار مناسبة "              />
-
+<SectionHeading
+  eyebrow="نبذة عن المحل"
+  title=" بزار كل شيء بالمعقول "
+  titleClassName="text-lg"
+  description=""
+  descriptionClassName="text-sm leading-6"
+/>
               <div className="mt-6 space-y-4 text-right">
-                <p className="text-sm leading-7 text-slate-600">{siteConfig.description}</p>
+                <p className="whitespace-pre-line text-sm leading-7 text-slate-600">
+  {siteConfig.description}
+</p>
 
                 <div className="rounded-[1.4rem] bg-slate-50 p-4">
                   <div className="flex items-center justify-between gap-4 border-b border-slate-200 py-3 text-sm">
                     <span className="font-semibold text-slate-950">ساعات العمل</span>
-                    <span className="text-slate-600">{siteConfig.hours}</span>
+                    <span className="whitespace-pre-line text-slate-600">
+  {siteConfig.hours}
+</span>
                   </div>
                   <div className="flex items-center justify-between gap-4 border-b border-slate-200 py-3 text-sm">
                     <span className="font-semibold text-slate-950">واتساب</span>

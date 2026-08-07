@@ -164,8 +164,10 @@ function HomePage() {
             <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <SectionHeading
                 eyebrow="آخر المنشورات"
+                  titleClassName="text-3xl"
                 title="آخر جديد في كل شيء بالمعقول"
-                description="عرض بسيط وآمن لأحدث ما نُشر على فيسبوك مباشرة."
+                descriptionClassName="text-sm leading-6"
+
               />
 
               {loading ? (

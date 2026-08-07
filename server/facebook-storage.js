@@ -30,6 +30,8 @@ export async function loadFacebookData() {
 }
 
 export async function saveFacebookData(data) {
+  console.log('Saving Facebook data...')
+
   const current = await loadFacebookData()
 
   const updated = {
@@ -37,11 +39,15 @@ export async function saveFacebookData(data) {
     ...data,
   }
 
+  console.log(updated)
+
   await writeFile(
     DATA_FILE,
     JSON.stringify(updated, null, 2),
     'utf8'
   )
+
+  console.log('Facebook data saved to:', DATA_FILE)
 
   return updated
 }

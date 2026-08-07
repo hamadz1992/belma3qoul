@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import heroBanner from '../../assets/images/hero-banner.jpg'
 import SectionHeading from '../../components/common/SectionHeading'
-import QRCodeBlock from '../../components/home/QRCodeBlock'
 import { featuredPosts, socialLinks, siteConfig } from '../../constants/site'
 import { getFacebookPosts, type FacebookPost } from '../../api/facebook'
 
@@ -81,8 +80,8 @@ function HomePage() {
           <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
             <SectionHeading
               eyebrow="روابط التواصل"
-              title="تواصل سريع"
-              description="كل روابط المحل في بطاقة واحدة للوصول السريع من أي جهاز."
+              title="تواصل معنا"
+              description=""
             />
 
             <div className="mt-6 space-y-3">
@@ -118,8 +117,8 @@ function HomePage() {
           <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
             <SectionHeading
               eyebrow="المنشورات المميزة"
-              title="ما تريد إبرازُه أولًا"
-              description="ثلاث بطاقات ثابتة للمنشورات التي تريد إبرازها في الأعلى."
+              title=""
+              description=""
             />
 
             <div className="mt-8 grid gap-5 lg:grid-cols-3">
@@ -238,10 +237,9 @@ function HomePage() {
               <SectionHeading
                 eyebrow="الموقع"
                 title="الوصول إلى المحل"
-                description="الخريطة ورمز QR في نفس السطر للوصول السريع من الهاتف أو المتصفح."
-              />
+               description="الاتجاه نحوى المحل."             />
 
-              <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <div className="mt-6">
                 <div className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-slate-50">
                   <iframe
                     title="خريطة الوصول إلى المحل"
@@ -263,28 +261,14 @@ function HomePage() {
                     </a>
                   </div>
                 </div>
-
-                <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5 text-center">
-                  <p className="text-sm font-semibold tracking-[0.2em] text-rose-500 uppercase">
-                    QR Code
-                  </p>
-                  <h3 className="mt-3 text-2xl font-black text-slate-950">امسح للوصول</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-600">
-                    امسح الرمز للوصول مباشرة إلى صفحة المحل.
-                  </p>
-                  <div className="mt-6 flex justify-center">
-                    <QRCodeBlock />
-                  </div>
-                </div>
-              </div>
+                             </div>
             </article>
 
             <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <SectionHeading
                 eyebrow="نبذة عن المحل"
                 title="كل شيء بالمعقول"
-                description="محل شامل يوفّر المنتجات المتنوعة بأسعار مناسبة ولتسهيل الوصول إلى كل جديد."
-              />
+                description="محل شامل يوفّر المنتجات المتنوعة بأسعار مناسبة "              />
 
               <div className="mt-6 space-y-4 text-right">
                 <p className="text-sm leading-7 text-slate-600">{siteConfig.description}</p>

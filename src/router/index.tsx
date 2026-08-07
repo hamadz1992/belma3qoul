@@ -6,6 +6,7 @@ import HomePage from '../pages/Home/HomePage'
 import LoginPage from '../pages/admin/LoginPage'
 import DashboardPage from '../pages/admin/DashboardPage'
 import FeaturedPostsPage from '../pages/admin/FeaturedPostsPage'
+import SiteSettingsPage from '../pages/admin/SiteSettingsPage'
 
 function NotFoundPage() {
   return <Navigate to="/#home" replace />
@@ -29,7 +30,14 @@ function AppRouter() {
         path="/admin/settings"
         element={<SettingsPage />}
       />
-
+      <Route
+  path="/admin/settings/site"
+  element={<SiteSettingsPage />}
+/>
+<Route
+  path="/admin/settings/site"
+  element={<SiteSettingsPage />}
+/>
       {/* الموقع الرئيسي */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />

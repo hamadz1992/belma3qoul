@@ -18,7 +18,42 @@ const dataDir = path.join(__dirname, 'data')
 const featuredFile = path.join(dataDir, 'featured-posts.json')
 const settingsFile = path.join(dataDir, 'settings.json')
 async function getSettings() {
-  
+  async function saveSettings(settings) {
+  await ensureDataDirectory()
+
+  await writeFile(
+    settingsFile,
+    JSON.stringify(settings, null, 2),
+    'utf8'
+  )
+
+  return settings
+}
+async function updateSettings(req, res) {
+  let body = ''
+
+  req.on('data', chunk => {
+    body += chunk
+  })
+
+  req.on('end', async () => {
+    try {
+      const settings = JSON.parse(body)
+
+      await saveSettings(settings)
+
+      sendJson(res, 200, {
+        success: true,
+        settings,
+      })
+    } catch (error) {
+      sendJson(res, 400, {
+        success: false,
+        error: 'Invalid settings data',
+      })
+    }
+  })
+}
 async function ensureDataDirectory() {
   try {
     await access(dataDir)
@@ -235,6 +270,11 @@ if (method === 'POST' && url.pathname === '/api/admin/featured-posts') {
   const settings = await getSettings()
 
   sendJson(res, 200, settings)
+
+  return
+}
+if (method === 'POST' && url.pathname === '/api/settings') {
+  await updateSettings(req, res)
 
   return
 }

@@ -1,5 +1,5 @@
 function getGraphVersion() {
-  return (process.env.META_GRAPH_VERSION || 'v25.0').trim()
+  return (process.env.META_GRAPH_VERSION || 'v26.0').trim()
 }
 
 function getPageId() {
@@ -105,11 +105,7 @@ export async function fetchFacebookPosts({ limit = 4 } = {}) {
 
   endpoint.searchParams.set('limit', String(safeLimit))
   endpoint.searchParams.set('access_token', getAccessToken())
-console.log("PAGE:", getPageId())
-console.log("TOKEN:", getAccessToken().substring(0, 25))
-console.log(endpoint.toString())
   const response = await fetch(endpoint)
-
   if (!response.ok) {
     const body = await response.text().catch(() => '')
     const error = new Error(

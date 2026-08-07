@@ -164,31 +164,25 @@ export async function facebookCallback(req, res) {
  const debugResponse = await fetch(debugUrl.toString())
 const debugData = await readJson(debugResponse)
 
-if (!debugData.data) {
-  console.log('DEBUG TOKEN INVALID OR EMPTY')
-}
+const pagesUrl = new URL(
+  'https://graph.facebook.com/v26.0/me/accounts'
+)
 
-const PAGE_ID = '2330896763591463'
-
-  const pageUrl = new URL(
-    `https://graph.facebook.com/v26.0/${PAGE_ID}`
-  )
-
-pageUrl.searchParams.set(
+pagesUrl.searchParams.set(
   'fields',
   'id,name,access_token'
 )
 
-  pageUrl.searchParams.set(
-    'access_token',
-    userAccessToken
-  )
+pagesUrl.searchParams.set(
+  'access_token',
+  userAccessToken
+)
 
-  const pageResponse = await fetch(pageUrl.toString())
-  const pageData = await readJson(pageResponse)
+const pagesResponse = await fetch(pagesUrl.toString())
+const pagesData = await readJson(pagesResponse)
 
-   if (!pageResponse.ok) {
-  res.writeHead(pageResponse.status, {
+if (!pagesResponse.ok) {
+  res.writeHead(pagesResponse.status, {
     'Content-Type': 'application/json; charset=utf-8',
   })
 
@@ -196,8 +190,8 @@ pageUrl.searchParams.set(
     JSON.stringify(
       {
         ok: false,
-        stage: 'page',
-        error: pageData,
+        stage: 'pages',
+        error: pagesData,
       },
       null,
       2
@@ -207,6 +201,30 @@ pageUrl.searchParams.set(
   return
 }
 
+const pageData = pagesData.data.find(
+  page => page.id === '2330896763591463'
+)
+
+if (!pageData) {
+  res.writeHead(404, {
+    'Content-Type': 'application/json; charset=utf-8',
+  })
+
+  res.end(
+    JSON.stringify(
+      {
+        ok: false,
+        stage: 'page',
+        error: 'Page not found in /me/accounts',
+        pages: pagesData.data,
+      },
+      null,
+      2
+    )
+  )
+
+  return
+}
 const pages = [pageData]
 const firstPage = pageData
 

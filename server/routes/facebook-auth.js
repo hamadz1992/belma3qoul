@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-
+import { saveFacebookData } from '../facebook-storage.js'
 dotenv.config()
 
 const REDIRECT_URI = 'https://belma3qoul.onrender.com/auth/facebook/callback'
@@ -32,8 +32,9 @@ export async function facebookLogin(req, res) {
   url.searchParams.set(
   'config_id',
   '1726342991977666'
-)
-  url.searchParams.set(
+  )
+/*
+url.searchParams.set(
   'scope',
   [
     'public_profile',
@@ -44,6 +45,7 @@ export async function facebookLogin(req, res) {
     'business_management'
   ].join(',')
 )
+*/
 
   res.writeHead(302, {
     Location: url.toString(),
@@ -172,10 +174,10 @@ const PAGE_ID = '2330896763591463'
     `https://graph.facebook.com/v26.0/${PAGE_ID}`
   )
 
-  pageUrl.searchParams.set(
-    'fields',
-  'id,name,access_token,tasks'
-  )
+pageUrl.searchParams.set(
+  'fields',
+  'id,name,access_token'
+)
 
   pageUrl.searchParams.set(
     'access_token',
@@ -208,6 +210,17 @@ const PAGE_ID = '2330896763591463'
 const pages = [pageData]
 const firstPage = pageData
 
+await saveFacebookData({
+  connected: true,
+  pageId: firstPage.id || '',
+  pageName: firstPage.name || '',
+  pageAccessToken: firstPage.access_token || '',
+  userAccessToken,
+  connectedAt: new Date().toISOString(),
+  expiresAt: debugData?.data?.expires_at
+    ? new Date(debugData.data.expires_at * 1000).toISOString()
+    : '',
+})
 console.log(
   JSON.stringify(
     {

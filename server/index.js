@@ -1,9 +1,3 @@
-import dotenv from 'dotenv'
-dotenv.config()
-console.log({
-  PAGE_ID: process.env.FACEBOOK_PAGE_ID,
-  TOKEN: process.env.FACEBOOK_PAGE_ACCESS_TOKEN?.substring(0, 10),
-})
 import http from 'node:http'
 import { createReadStream } from 'node:fs'
 import { access, readFile, writeFile, stat } from 'node:fs/promises'
@@ -175,9 +169,10 @@ async function handleFacebookPosts(req, res, url) {
   } catch (error) {
     const status = typeof error?.status === 'number' ? error.status : 503
     sendJson(res, status, {
+     "success": false,
       source: 'facebook',
       posts: [],
-      error: error?.message || 'Unable to fetch Facebook posts.',
+      error: "Unable to fetch Facebook posts."
     })
   }
 }

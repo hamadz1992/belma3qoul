@@ -211,21 +211,17 @@ function HomePage() {
                             {formatDate(post.createdTime)}
                           </span>
                         </div>
-
-                        <p className="mt-2 text-sm font-semibold text-slate-950">
-                          آخر منشور
-                        </p>
                         <p
-                          className="mt-1 text-sm leading-6 text-slate-600"
-                          style={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {post.message}
-                        </p>
+                          className="mt-2 text-[13px] leading-5 text-slate-600"
+  style={{
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  }}
+>
+  {post.message}
+</p>
                       </div>
                     </a>
                   ))}

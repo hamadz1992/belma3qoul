@@ -14,7 +14,20 @@ const __dirname = path.dirname(__filename)
 const projectRoot = path.resolve(__dirname, '..')
 const distDir = path.join(projectRoot, 'dist')
 const port = Number.parseInt(process.env.FACEBOOK_API_PORT || process.env.PORT || '8787', 10)
-const featuredFile = path.join(__dirname, 'featured.json')
+const dataDir = path.join(__dirname, 'data')
+const featuredFile = path.join(dataDir, 'featured-posts.json')
+const settingsFile = path.join(dataDir, 'settings.json')
+async function getSettings() {
+  
+async function ensureDataDirectory() {
+  try {
+    await access(dataDir)
+  } catch {
+    await import('node:fs/promises').then(fs =>
+      fs.mkdir(dataDir, { recursive: true })
+    )
+  }
+}
 
 async function getFeaturedPosts() {
   try {
@@ -24,8 +37,24 @@ async function getFeaturedPosts() {
     return []
   }
 }
-
+try {
+    const data = await readFile(settingsFile, 'utf8')
+    return JSON.parse(data)
+  } catch {
+    return {
+      site: {
+        name: '',
+        description: '',
+        phone: '',
+        whatsapp: '',
+        address: '',
+        hours: '',
+      },
+    }
+  }
+}
 async function saveFeaturedPosts(posts) {
+  await ensureDataDirectory()
   await writeFile(
     featuredFile,
     JSON.stringify({ posts }, null, 2),
@@ -202,6 +231,13 @@ if (method === 'POST' && url.pathname === '/api/admin/featured-posts') {
   return
 }
   if (method === 'GET' && url.pathname === '/api/facebook/posts') {
+    if (method === 'GET' && url.pathname === '/api/settings') {
+  const settings = await getSettings()
+
+  sendJson(res, 200, settings)
+
+  return
+}
     await handleFacebookPosts(req, res, url)
     return
   }

@@ -18,7 +18,18 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+<div
+  onClick={() => navigate('/admin/facebook')}
+  className="cursor-pointer rounded-3xl bg-white p-6 shadow transition hover:-translate-y-1 hover:shadow-xl"
+>
+  <h2 className="text-xl font-bold">
+    📘 Facebook
+  </h2>
 
+  <p className="mt-3 text-slate-500">
+    إدارة اتصال Facebook والمنشورات.
+  </p>
+</div>
           <div
             onClick={() => navigate('/admin/featured-posts')}
             className="cursor-pointer rounded-3xl bg-white p-6 shadow transition hover:-translate-y-1 hover:shadow-xl"

@@ -1,12 +1,11 @@
 import { Route, Routes, Navigate } from 'react-router-dom'
-
+import SettingsPage from '../pages/admin/SettingsPage'
+import FacebookPage from '../pages/admin/FacebookPage'
 import MainLayout from '../layouts/MainLayout'
 import HomePage from '../pages/Home/HomePage'
-
 import LoginPage from '../pages/admin/LoginPage'
 import DashboardPage from '../pages/admin/DashboardPage'
 import FeaturedPostsPage from '../pages/admin/FeaturedPostsPage'
-import SettingsPage from '../pages/admin/SettingsPage'
 
 function NotFoundPage() {
   return <Navigate to="/#home" replace />
@@ -22,6 +21,10 @@ function AppRouter() {
         path="/admin/featured-posts"
         element={<FeaturedPostsPage />}
       />
+      <Route
+  path="/admin/facebook"
+  element={<FacebookPage />}
+/>
       <Route
         path="/admin/settings"
         element={<SettingsPage />}

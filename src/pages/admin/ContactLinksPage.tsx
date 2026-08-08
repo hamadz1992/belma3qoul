@@ -1,0 +1,171 @@
+import { useEffect, useState } from 'react'
+
+type SocialLinks = {
+  facebook: string
+  instagram: string
+  tiktok: string
+  telegram: string
+  youtube: string
+}
+
+const defaultSocialLinks: SocialLinks = {
+  facebook: '',
+  instagram: '',
+  tiktok: '',
+  telegram: '',
+  youtube: '',
+}
+
+const fields: Array<{
+  key: keyof SocialLinks
+  label: string
+  placeholder: string
+  icon: string
+}> = [
+  {
+    key: 'facebook',
+    label: 'Facebook',
+    placeholder: 'https://facebook.com/...',
+    icon: '📘',
+  },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    placeholder: 'https://instagram.com/...',
+    icon: '📸',
+  },
+  {
+    key: 'tiktok',
+    label: 'TikTok',
+    placeholder: 'https://tiktok.com/@...',
+    icon: '🎵',
+  },
+  {
+    key: 'telegram',
+    label: 'Telegram',
+    placeholder: 'https://t.me/...',
+    icon: '✈️',
+  },
+  {
+    key: 'youtube',
+    label: 'YouTube',
+    placeholder: 'https://youtube.com/@...',
+    icon: '▶️',
+  },
+]
+
+export default function ContactLinksPage() {
+  const [social, setSocial] = useState<SocialLinks>(defaultSocialLinks)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const response = await fetch('/api/settings', { cache: 'no-store' })
+        if (!response.ok) throw new Error('Failed to load settings')
+
+        const data = await response.json()
+
+        setSocial({
+          ...defaultSocialLinks,
+          ...(data?.social || {}),
+        })
+      } catch (error) {
+        console.error(error)
+        alert('❌ تعذر تحميل روابط التواصل')
+      }
+    }
+
+    load()
+  }, [])
+
+  function updateLink(key: keyof SocialLinks, value: string) {
+    setSocial((current) => ({
+      ...current,
+      [key]: value,
+    }))
+  }
+
+  async function saveLinks() {
+    setSaving(true)
+
+    try {
+      // Preserve all existing settings and update only the social section.
+      const getResponse = await fetch('/api/settings', { cache: 'no-store' })
+      if (!getResponse.ok) throw new Error('Failed to load current settings')
+
+      const currentSettings = await getResponse.json()
+
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...currentSettings,
+          social,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save social links')
+      }
+
+      alert('✅ تم حفظ روابط التواصل')
+    } catch (error) {
+      console.error(error)
+      alert('❌ حدث خطأ أثناء حفظ روابط التواصل')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-slate-950">
+            📱 روابط التواصل
+          </h1>
+          <p className="mt-2 text-slate-500">
+            هنا فقط تتحكم في روابط حسابات المحل التي تظهر في الموقع.
+          </p>
+        </div>
+
+        <div className="rounded-3xl bg-white p-5 shadow sm:p-8">
+          <div className="space-y-5">
+            {fields.map((field) => (
+              <div
+                key={field.key}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <label className="mb-2 flex items-center gap-2 font-bold text-slate-900">
+                  <span>{field.icon}</span>
+                  {field.label}
+                </label>
+
+                <input
+                  type="url"
+                  value={social[field.key]}
+                  onChange={(e) => updateLink(field.key, e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                  dir="ltr"
+                  placeholder={field.placeholder}
+                />
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={saveLinks}
+            disabled={saving}
+            className="mt-7 rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving ? '⏳ جارٍ الحفظ...' : '💾 حفظ روابط التواصل'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

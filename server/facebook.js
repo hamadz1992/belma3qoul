@@ -7,11 +7,23 @@ function getGraphVersion() {
 async function getFacebookConnection() {
   const stored = await loadFacebookData()
 
-  const pageId =
-    (stored.pageId || process.env.FACEBOOK_PAGE_ID || '').trim()
+  const useDatabase = Boolean(
+    (process.env.DATABASE_URL || '').trim()
+  )
 
-  const accessToken =
-    (stored.pageAccessToken || process.env.FACEBOOK_PAGE_ACCESS_TOKEN || '').trim()
+  const pageId = (
+    stored.pageId ||
+    (!useDatabase ? process.env.FACEBOOK_PAGE_ID : '') ||
+    ''
+  ).trim()
+
+  const accessToken = (
+    stored.pageAccessToken ||
+    (!useDatabase
+      ? process.env.FACEBOOK_PAGE_ACCESS_TOKEN
+      : '') ||
+    ''
+  ).trim()
 
   return {
     pageId,
@@ -42,7 +54,9 @@ function extractImageUrl(post) {
     return fullPicture
   }
 
-  const attachments = Array.isArray(post?.attachments?.data)
+  const attachments = Array.isArray(
+    post?.attachments?.data
+  )
     ? post.attachments.data
     : []
 
@@ -81,6 +95,7 @@ function normalizePost(post) {
   const id = textOrEmpty(post?.id)
   const message = textOrEmpty(post?.message)
   const createdTime = textOrEmpty(post?.created_time)
+
   const permalinkUrl =
     textOrEmpty(post?.permalink_url) ||
     `https://www.facebook.com/${id}`
@@ -104,8 +119,12 @@ export async function fetchFacebookPosts({ limit = 4 } = {}) {
   const connection = await getFacebookConnection()
 
   if (!connection.pageId || !connection.accessToken) {
-    const error = new Error('Facebook is not connected.')
+    const error = new Error(
+      'Facebook is not connected.'
+    )
+
     error.code = 'FACEBOOK_NOT_CONNECTED'
+
     throw error
   }
 

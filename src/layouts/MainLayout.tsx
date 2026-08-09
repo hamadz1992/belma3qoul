@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import Footer from '../components/layout/Footer'
 import Header from '../components/layout/Header'
 import MobileMenu from '../components/layout/MobileMenu'
 import Navbar from '../components/layout/Navbar'
@@ -18,12 +17,9 @@ function MainLayout() {
       <Header onMenuClick={() => setMenuOpen(true)} />
       <Navbar />
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-
       <main>
         <Outlet />
       </main>
-
-      <Footer />
     </div>
   )
 }

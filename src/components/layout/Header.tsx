@@ -8,9 +8,11 @@ type SocialSettings = { facebook: string; instagram: string; tiktok: string; tel
 const socialPlatforms = [
   { key: 'facebook', label: 'Facebook', hint: 'صفحتنا', color: 'bg-[#1877F2]' },
   { key: 'instagram', label: 'Instagram', hint: 'صورنا', color: 'bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]' },
+  { key: 'tiktok', label: 'TikTok', hint: 'فيديوهاتنا', color: 'bg-slate-950' },
+  { key: 'telegram', label: 'Telegram', hint: 'تواصل معنا', color: 'bg-[#229ED9]' },
+  { key: 'youtube', label: 'YouTube', hint: 'قناتنا', color: 'bg-[#FF0000]' },
   { key: 'whatsapp', label: 'WhatsApp', hint: 'تواصل معنا', color: 'bg-[#25D366]' },
   { key: 'messenger', label: 'Messenger', hint: 'رسالة مباشرة', color: 'bg-[#006AFF]' },
-  { key: 'tiktok', label: 'TikTok', hint: 'فيديوهاتنا', color: 'bg-slate-950' },
 ] as const
 
 function getPlatformInitial(label: string) { return (label.trim()[0] || '•').toUpperCase() }

@@ -43,6 +43,15 @@ const DEFAULT_SETTINGS = {
     telegram: '',
     youtube: '',
   },
+  social: {
+    facebook: '',
+    instagram: '',
+    tiktok: '',
+    telegram: '',
+    youtube: '',
+    whatsapp: '',
+    messenger: '',
+  },
 }
 
 const sessions = new Map()
@@ -225,7 +234,13 @@ async function ensureDataDirectory() {
 async function getSettings() {
   try {
     const data = await readFile(settingsFile, 'utf8')
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(data) }
+    const parsed = JSON.parse(data)
+    return {
+      ...DEFAULT_SETTINGS,
+      ...parsed,
+      site: { ...DEFAULT_SETTINGS.site, ...(parsed?.site || {}) },
+      social: { ...DEFAULT_SETTINGS.social, ...(parsed?.social || {}) },
+    }
   } catch {
     return DEFAULT_SETTINGS
   }
@@ -240,10 +255,18 @@ async function saveSettings(settings) {
 async function updateSettings(req, res) {
   if (!isSameOrigin(req) || !requireAdmin(req, res)) return
   try {
-    const settings = await readRequestJson(req)
+    const payload = await readRequestJson(req)
+    const current = await getSettings()
+    const settings = {
+      ...current,
+      ...payload,
+      site: { ...current.site, ...(payload?.site || {}) },
+      social: { ...current.social, ...(payload?.social || {}) },
+    }
     await saveSettings(settings)
     sendJson(res, 200, { success: true, settings })
-  } catch {
+  } catch (error) {
+    console.error('Failed to save settings:', error)
     sendJson(res, 400, { success: false, error: 'Invalid settings data' })
   }
 }

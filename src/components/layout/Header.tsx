@@ -17,6 +17,7 @@ const socialPlatforms = [
 
 function getPlatformInitial(label: string) { return (label.trim()[0] || '•').toUpperCase() }
 function normalizeSocialUrl(key: string, value: string) { if (value) return value; if (key === 'whatsapp') return `https://wa.me/${siteConfig.whatsapp.replace(/\D/g, '')}`; if (key === 'messenger') return siteConfig.messengerUrl; return '' }
+function track(event: string) { void fetch('/api/analytics/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event }), keepalive: true }).catch(() => undefined) }
 
 function Header({ onMenuClick }: HeaderProps) {
   const [social, setSocial] = useState<SocialSettings>({ facebook: '', instagram: '', tiktok: '', telegram: '', youtube: '', whatsapp: '', messenger: '' })
@@ -35,7 +36,7 @@ function Header({ onMenuClick }: HeaderProps) {
           {socialPlatforms.map((link) => {
             const href = normalizeSocialUrl(link.key, social[link.key])
             if (!href) return null
-            return <a key={link.key} href={href} target="_blank" rel="noreferrer" title={link.label} className="group flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-md">
+            return <a key={link.key} href={href} target="_blank" rel="noreferrer" title={link.label} onClick={() => track(`${link.key}_click`)} className="group flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-md">
               <span className={`flex h-9 w-9 items-center justify-center rounded-full ${link.color} text-xs font-black text-white shadow-sm ring-2 ring-white`}>{getPlatformInitial(link.label)}</span>
               <span className="hidden text-right sm:block"><span className="block text-[11px] font-bold leading-4 text-slate-900">{link.label}</span><span className="block text-[9px] leading-3 text-slate-400">{link.hint}</span></span>
             </a>

@@ -59,6 +59,7 @@ function extractMedia(post) {
   let imageUrl = textOrEmpty(post?.full_picture)
   let videoUrl = textOrEmpty(post?.source)
   let mediaType = ''
+  let videoId = ''
 
   for (const attachment of candidates) {
     const currentType = String(attachment?.media_type || '').toLowerCase()
@@ -74,6 +75,10 @@ function extractMedia(post) {
       mediaType = currentType
     }
 
+    if (!videoId && currentType === 'video') {
+      videoId = textOrEmpty(attachment?.target?.id)
+    }
+
     if (!videoUrl && currentType === 'video') {
       videoUrl =
         textOrEmpty(attachment?.media?.source) ||
@@ -82,17 +87,20 @@ function extractMedia(post) {
     }
   }
 
-  return { imageUrl, videoUrl, mediaType }
+  return { imageUrl, videoUrl, mediaType, videoId }
 }
 
 function normalizePost(post) {
   const id = textOrEmpty(post?.id)
-  const message = textOrEmpty(post?.message)
+  const message =
+    textOrEmpty(post?.message) ||
+    textOrEmpty(post?.description) ||
+    ''
   const createdTime = textOrEmpty(post?.created_time)
   const permalinkUrl =
     textOrEmpty(post?.permalink_url) ||
     `https://www.facebook.com/${id}`
-  const { imageUrl, videoUrl, mediaType } = extractMedia(post)
+  const { imageUrl, videoUrl, mediaType, videoId } = extractMedia(post)
 
   return {
     id,
@@ -102,6 +110,7 @@ function normalizePost(post) {
     imageUrl,
     videoUrl,
     mediaType,
+    videoId,
   }
 }
 
@@ -118,6 +127,26 @@ function normalizeFacebookId(value) {
   }
 
   return raw
+}
+
+async function resolveVideoSource(videoId, accessToken) {
+  if (!videoId) return ''
+
+  try {
+    const endpoint = new URL(
+      `https://graph.facebook.com/${getGraphVersion()}/${videoId}`
+    )
+    endpoint.searchParams.set('fields', 'source')
+    endpoint.searchParams.set('access_token', accessToken)
+
+    const response = await fetch(endpoint)
+    if (!response.ok) return ''
+
+    const payload = await response.json()
+    return textOrEmpty(payload?.source)
+  } catch {
+    return ''
+  }
 }
 
 export async function fetchFacebookPostById(value) {
@@ -141,9 +170,11 @@ export async function fetchFacebookPostById(value) {
     `https://graph.facebook.com/${getGraphVersion()}/${postId}`
   )
 
+  // Reels do not expose the normal Page post `message` field through this lookup.
+  // Keep only fields supported by the Reel/video object and read the caption when available.
   endpoint.searchParams.set(
     'fields',
-    'id,message,created_time,permalink_url,full_picture,source,attachments{media_type,media{image,source},url,subattachments{media_type,media{image,source},url}}'
+    'id,created_time,permalink_url,full_picture,attachments{media_type,target,media{image,source},url,subattachments{media_type,target,media{image,source},url}}'
   )
   endpoint.searchParams.set('access_token', connection.accessToken)
 
@@ -166,6 +197,10 @@ export async function fetchFacebookPostById(value) {
     const error = new Error('Facebook Reel was not found.')
     error.status = 404
     throw error
+  }
+
+  if (!post.videoUrl && post.videoId) {
+    post.videoUrl = await resolveVideoSource(post.videoId, connection.accessToken)
   }
 
   return post

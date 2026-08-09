@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import heroBanner from '../../assets/images/hero-banner.jpg'
 import SectionHeading from '../../components/common/SectionHeading'
-import { featuredPosts, siteConfig } from '../../constants/site'
+import { siteConfig } from '../../constants/site'
 import { getFacebookPosts, type FacebookPost } from '../../api/facebook'
 
 type SiteSettings = {
@@ -62,6 +62,14 @@ function normalizeUrl(value: string, fallback: string) {
   return value
 }
 
+type FeaturedPost = {
+  id: string
+  message?: string
+  createdTime?: string
+  permalinkUrl?: string
+  imageUrl?: string
+}
+
 function HomePage() {
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({
     name: siteConfig.name || '',
@@ -82,7 +90,9 @@ function HomePage() {
   })
 
   const [posts, setPosts] = useState<FacebookPost[]>([])
+  const [featuredPosts, setFeaturedPosts] = useState<FeaturedPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [featuredLoading, setFeaturedLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -150,6 +160,44 @@ function HomePage() {
     }
 
     loadPosts()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadFeaturedPosts() {
+      try {
+        const response = await fetch('/api/admin/featured-posts', {
+          cache: 'no-store',
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to load featured posts')
+        }
+
+        const data = await response.json()
+
+        if (isMounted) {
+          setFeaturedPosts(Array.isArray(data?.posts) ? data.posts : [])
+        }
+      } catch (error) {
+        console.error('Failed to load featured posts:', error)
+
+        if (isMounted) {
+          setFeaturedPosts([])
+        }
+      } finally {
+        if (isMounted) {
+          setFeaturedLoading(false)
+        }
+      }
+    }
+
+    loadFeaturedPosts()
 
     return () => {
       isMounted = false
@@ -273,44 +321,66 @@ function HomePage() {
               description=""
             />
 
-            <div className="mt-8 grid gap-5 lg:grid-cols-3">
-              {featuredPosts.map((post) => (
-                <article
-                  key={post.title}
-                  className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-semibold tracking-[0.2em] text-rose-500 uppercase">
-                      {post.platform}
-                    </span>
-
-                    {post.badge ? (
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">
-                        {post.badge}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <h3 className="mt-4 text-lg font-bold text-slate-950">
-                    {post.title}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-7 text-slate-600">
-                    {post.text}
-                  </p>
-
-                  <a
-                    href={post.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-rose-700 transition hover:text-rose-800"
+            {featuredLoading ? (
+              <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-8 text-center text-slate-500">
+                جارٍ تحميل المنشورات المميزة...
+              </div>
+            ) : featuredPosts.length === 0 ? (
+              <div className="mt-8 rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-slate-500">
+                لا توجد منشورات مميزة حاليًا.
+              </div>
+            ) : (
+              <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                {featuredPosts.map((post) => (
+                  <article
+                    key={post.id}
+                    className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-slate-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
-                    عرض المنشور
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                </article>
-              ))}
-            </div>
+                    {post.imageUrl ? (
+                      <img
+                        src={post.imageUrl}
+                        alt=""
+                        className="h-48 w-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : null}
+
+                    <div className="p-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold tracking-[0.2em] text-rose-500 uppercase">
+                          Facebook
+                        </span>
+
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">
+                          مثبت
+                        </span>
+                      </div>
+
+                      <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-600">
+                        {post.message || 'منشور بدون نص'}
+                      </p>
+
+                      <div className="mt-5 flex items-center justify-between gap-3">
+                        <span className="text-xs text-slate-500">
+                          {formatDate(post.createdTime || '')}
+                        </span>
+
+                        {post.permalinkUrl ? (
+                          <a
+                            href={post.permalinkUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm font-semibold text-rose-700 transition hover:text-rose-800"
+                          >
+                            عرض المنشور ↗
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </article>
         </div>
       </section>
@@ -517,5 +587,3 @@ function HomePage() {
     </div>
   )
 }
-
-export default HomePage

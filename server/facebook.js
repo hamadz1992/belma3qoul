@@ -170,11 +170,11 @@ export async function fetchFacebookPostById(value) {
     `https://graph.facebook.com/${getGraphVersion()}/${postId}`
   )
 
-  // Reels do not expose the normal Page post `message` field through this lookup.
-  // Keep only fields supported by the Reel/video object and read the caption when available.
+  // A direct Reel lookup returns a Video object, so do not request
+  // Post-only fields such as message or full_picture here.
   endpoint.searchParams.set(
     'fields',
-    'id,created_time,permalink_url,full_picture,attachments{media_type,target,media{image,source},url,subattachments{media_type,target,media{image,source},url}}'
+    'id,description,created_time,permalink_url,picture,source'
   )
   endpoint.searchParams.set('access_token', connection.accessToken)
 
@@ -191,16 +191,15 @@ export async function fetchFacebookPostById(value) {
   }
 
   const payload = await response.json()
-  const post = normalizePost(payload)
+  const post = normalizePost({
+    ...payload,
+    full_picture: payload?.picture || '',
+  })
 
   if (!post.id) {
     const error = new Error('Facebook Reel was not found.')
     error.status = 404
     throw error
-  }
-
-  if (!post.videoUrl && post.videoId) {
-    post.videoUrl = await resolveVideoSource(post.videoId, connection.accessToken)
   }
 
   return post

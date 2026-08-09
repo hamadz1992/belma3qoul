@@ -57,10 +57,12 @@ function extractMedia(post) {
   }
 
   let imageUrl = textOrEmpty(post?.full_picture)
-  let videoId = ''
   let videoUrl = ''
+  let mediaType = ''
 
   for (const attachment of candidates) {
+    const currentType = String(attachment?.media_type || '').toLowerCase()
+
     if (!imageUrl) {
       imageUrl =
         textOrEmpty(attachment?.media?.image?.src) ||
@@ -68,11 +70,11 @@ function extractMedia(post) {
         textOrEmpty(attachment?.url)
     }
 
-    if (!videoId && String(attachment?.media_type || '').toLowerCase() === 'video') {
-      videoId =
-        textOrEmpty(attachment?.target?.id) ||
-        textOrEmpty(attachment?.id)
+    if (!mediaType && currentType) {
+      mediaType = currentType
+    }
 
+    if (!videoUrl && currentType === 'video') {
       videoUrl =
         textOrEmpty(attachment?.media?.source) ||
         textOrEmpty(attachment?.media?.video?.source) ||
@@ -80,46 +82,26 @@ function extractMedia(post) {
     }
   }
 
-  return { imageUrl, videoId, videoUrl }
+  return { imageUrl, videoUrl, mediaType }
 }
 
-async function resolveVideoSource(videoId, accessToken) {
-  if (!videoId || !accessToken) return ''
-
-  try {
-    const endpoint = new URL(
-      `https://graph.facebook.com/${getGraphVersion()}/${videoId}`
-    )
-    endpoint.searchParams.set('fields', 'source')
-    endpoint.searchParams.set('access_token', accessToken)
-
-    const response = await fetch(endpoint)
-    if (!response.ok) return ''
-
-    const payload = await response.json()
-    return textOrEmpty(payload?.source)
-  } catch {
-    return ''
-  }
-}
-
-function normalizePost(post, media = {}) {
+function normalizePost(post) {
   const id = textOrEmpty(post?.id)
   const message = textOrEmpty(post?.message)
   const createdTime = textOrEmpty(post?.created_time)
   const permalinkUrl =
     textOrEmpty(post?.permalink_url) ||
     `https://www.facebook.com/${id}`
-
-  const extracted = extractMedia(post)
+  const { imageUrl, videoUrl, mediaType } = extractMedia(post)
 
   return {
     id,
     message,
     createdTime,
     permalinkUrl,
-    imageUrl: extracted.imageUrl,
-    videoUrl: media.videoUrl || extracted.videoUrl || '',
+    imageUrl,
+    videoUrl,
+    mediaType,
   }
 }
 
@@ -147,9 +129,11 @@ export async function fetchFacebookPosts({ limit = 4 } = {}) {
     `https://graph.facebook.com/${getGraphVersion()}/${connection.pageId}/feed`
   )
 
+  // Keep the feed fields compatible with the previously working Facebook request.
+  // Video source is optional; the public permalink is retained for Reels.
   endpoint.searchParams.set(
     'fields',
-    'id,message,created_time,permalink_url,full_picture,attachments{id,media_type,target{id},media{image,source},url,subattachments{id,media_type,target{id},media{image,source},url}}}'
+    'id,message,created_time,permalink_url,full_picture,attachments{media_type,media{image,source},url,subattachments{media_type,media{image,source},url}}'
   )
   endpoint.searchParams.set('limit', String(safeLimit))
   endpoint.searchParams.set('access_token', connection.accessToken)
@@ -167,27 +151,15 @@ export async function fetchFacebookPosts({ limit = 4 } = {}) {
   }
 
   const payload = await response.json()
-  const rawPosts = Array.isArray(payload?.data) ? payload.data : []
-
-  const posts = await Promise.all(
-    rawPosts.map(async (post) => {
-      const extracted = extractMedia(post)
-      const videoUrl = extracted.videoUrl ||
-        (extracted.videoId
-          ? await resolveVideoSource(extracted.videoId, connection.accessToken)
-          : '')
-
-      return normalizePost(post, { videoUrl })
-    })
-  )
-
-  const normalizedPosts = posts.filter((post) => post.id)
+  const posts = Array.isArray(payload?.data)
+    ? payload.data.map(normalizePost).filter((post) => post.id)
+    : []
 
   cache = {
     key,
     updatedAt: now,
-    posts: normalizedPosts,
+    posts,
   }
 
-  return normalizedPosts
+  return posts
 }

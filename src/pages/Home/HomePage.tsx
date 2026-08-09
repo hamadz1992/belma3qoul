@@ -23,12 +23,15 @@ function HomePage() {
 
   useEffect(() => { track('page_view') }, [])
   useEffect(() => {
-    const storageKey = 'belma3qoul_facebook_popup_seen'
-    if (localStorage.getItem(storageKey)) return
-    const timer = window.setTimeout(() => {
-      setShowFacebookPopup(true)
-      localStorage.setItem(storageKey, String(Date.now()))
-    }, 8000)
+    const storageKey = 'belma3qoul_facebook_popup_visits'
+    let visits = Number.parseInt(localStorage.getItem(storageKey) || '0', 10)
+    if (!Number.isFinite(visits) || visits < 0) visits = 0
+    visits += 1
+    localStorage.setItem(storageKey, String(visits))
+
+    if (visits % 3 !== 0) return
+
+    const timer = window.setTimeout(() => setShowFacebookPopup(true), 8000)
     return () => window.clearTimeout(timer)
   }, [])
   useEffect(() => { let isMounted = true; async function loadSettings() { try { const response = await fetch('/api/settings'); if (!response.ok) throw new Error('Failed to load site settings'); const data = await response.json(); if (isMounted && data?.site) setSiteSettings((current) => ({ ...current, ...data.site })) } catch (error) { console.error('Failed to load site settings:', error) } } void loadSettings(); return () => { isMounted = false } }, [])

@@ -27,8 +27,11 @@ export default function NewsTickerControls() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetch('/api/settings', { cache: 'no-store' })
-      .then((response) => response.json())
+    fetch('/api/settings', { cache: 'no-store', credentials: 'include' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        return response.json()
+      })
       .then((data) => {
         if (data?.newsTicker) setTicker({ ...defaults, ...data.newsTicker })
       })
@@ -60,18 +63,36 @@ export default function NewsTickerControls() {
   async function saveTicker() {
     setSaving(true)
     try {
-      const currentResponse = await fetch('/api/settings', { cache: 'no-store' })
+      const currentResponse = await fetch('/api/settings', {
+        cache: 'no-store',
+        credentials: 'include',
+      })
+      if (!currentResponse.ok) throw new Error(`تعذر قراءة الإعدادات (HTTP ${currentResponse.status})`)
+
       const current = await currentResponse.json()
       const response = await fetch('/api/settings', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...current, newsTicker: ticker }),
       })
-      if (!response.ok) throw new Error('Failed to save news ticker')
+
+      if (!response.ok) {
+        let message = `HTTP ${response.status}`
+        try {
+          const data = await response.json()
+          if (data?.error) message = data.error
+        } catch {
+          // Keep the HTTP status when the response is not JSON.
+        }
+        throw new Error(message)
+      }
+
       alert('✅ تم حفظ إعدادات شريط الأخبار')
     } catch (error) {
-      console.error(error)
-      alert('❌ تعذر حفظ إعدادات شريط الأخبار')
+      console.error('Failed to save news ticker settings:', error)
+      const message = error instanceof Error ? error.message : 'خطأ غير معروف'
+      alert(`❌ تعذر حفظ إعدادات شريط الأخبار\n${message}`)
     } finally {
       setSaving(false)
     }

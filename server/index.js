@@ -4,7 +4,7 @@ import { access, readFile, writeFile, stat, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { loadFacebookData } from './facebook-storage.js'
-import { fetchFacebookPosts } from './facebook.js'
+import { fetchFacebookPosts, fetchFacebookPostById } from './facebook.js'
 import {
   facebookLogin,
   facebookCallback,
@@ -323,6 +323,32 @@ async function handleFacebookPosts(req, res, url) {
   }
 }
 
+async function handleFacebookReel(req, res, url) {
+  const value = url.searchParams.get('id') || url.searchParams.get('url') || ''
+
+  try {
+    const post = await fetchFacebookPostById(value)
+
+    sendJson(res, 200, {
+      success: true,
+      source: 'facebook',
+      post,
+    })
+  } catch (error) {
+    const status =
+      typeof error?.status === 'number'
+        ? error.status
+        : 503
+
+    sendJson(res, status, {
+      success: false,
+      source: 'facebook',
+      post: null,
+      error: error?.message || 'Unable to fetch Facebook Reel.',
+    })
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(
@@ -400,6 +426,15 @@ const server = http.createServer(async (req, res) => {
       url.pathname === '/api/facebook/status'
     ) {
       await handleFacebookStatus(req, res)
+      return
+    }
+
+    // Facebook Reel lookup
+    if (
+      method === 'GET' &&
+      url.pathname === '/api/facebook/reel'
+    ) {
+      await handleFacebookReel(req, res, url)
       return
     }
 

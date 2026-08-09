@@ -60,6 +60,7 @@ type FeaturedPost = {
   createdTime?: string
   permalinkUrl?: string
   imageUrl?: string
+  videoUrl?: string
 }
 
 function HomePage() {
@@ -209,9 +210,13 @@ function HomePage() {
               <div className="mt-8 grid gap-5 lg:grid-cols-3">
                 {featuredPosts.map((post) => (
                   <article key={post.id} className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-slate-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-                    {post.imageUrl ? <img src={post.imageUrl} alt="" className="h-48 w-full object-cover" loading="lazy" /> : null}
+                    {post.videoUrl ? (
+                      <video src={post.videoUrl} poster={post.imageUrl || undefined} controls playsInline preload="metadata" className="h-48 w-full bg-black object-cover" />
+                    ) : post.imageUrl ? (
+                      <img src={post.imageUrl} alt="" className="h-48 w-full object-cover" loading="lazy" />
+                    ) : null}
                     <div className="p-5">
-                      <div className="flex items-center justify-between gap-3"><span className="text-xs font-semibold tracking-[0.2em] text-rose-500 uppercase">Facebook</span><span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">مثبت</span></div>
+                      <div className="flex items-center justify-between gap-3"><span className="text-xs font-semibold tracking-[0.2em] text-rose-500 uppercase">Facebook</span><span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">{post.videoUrl ? '🎬 فيديو مثبت' : 'مثبت'}</span></div>
                       <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-600">{post.message || 'منشور بدون نص'}</p>
                       <div className="mt-5 flex items-center justify-between gap-3"><span className="text-xs text-slate-500">{formatDate(post.createdTime || '')}</span>{post.permalinkUrl ? <a href={post.permalinkUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-rose-700 transition hover:text-rose-800">عرض المنشور ↗</a> : null}</div>
                     </div>
@@ -238,9 +243,9 @@ function HomePage() {
                 <div className="mt-8 space-y-4">
                   {posts.map((post) => (
                     <a key={post.id} href={post.permalinkUrl} target="_blank" rel="noreferrer" className="flex gap-4 rounded-[1.5rem] border border-slate-100 bg-slate-50 p-3 transition duration-300 hover:-translate-y-0.5 hover:border-rose-200 hover:bg-white hover:shadow-sm">
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">{post.imageUrl ? <img src={post.imageUrl} alt={post.message} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-gradient-to-br from-rose-100 via-white to-fuchsia-100" />}</div>
+                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">{post.videoUrl ? <video src={post.videoUrl} poster={post.imageUrl || undefined} muted playsInline preload="metadata" className="h-full w-full object-cover" /> : post.imageUrl ? <img src={post.imageUrl} alt={post.message} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-gradient-to-br from-rose-100 via-white to-fuchsia-100" />}</div>
                       <div className="min-w-0 flex-1 text-right">
-                        <div className="flex items-center justify-between gap-3"><span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-rose-600 uppercase ring-1 ring-rose-100">Facebook</span><span className="text-[11px] text-slate-500">{formatDate(post.createdTime)}</span></div>
+                        <div className="flex items-center justify-between gap-3"><span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-rose-600 uppercase">Facebook</span><span className="text-[11px] text-slate-500">{formatDate(post.createdTime)}</span></div>
                         <p className="mt-2 text-[13px] leading-5 text-slate-600" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.message}</p>
                       </div>
                     </a>

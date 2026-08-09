@@ -118,37 +118,15 @@ async function saveFeaturedPosts(posts) {
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
   '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8',
-}
-
-function sendJson(res, statusCode, payload) {
-  const body = JSON.stringify(payload, null, 2)
-
-  res.writeHead(statusCode, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store',
-  })
-
-  res.end(body)
-}
-
-function sendText(res, statusCode, message) {
-  res.writeHead(statusCode, {
-    'Content-Type': 'text/plain; charset=utf-8',
-    'Cache-Control': 'no-store',
-  })
-
-  res.end(message)
 }
 
 function getContentType(filePath) {
@@ -167,35 +145,31 @@ async function fileExists(filePath) {
   }
 }
 
+function sendJson(res, statusCode, data) {
+  const body = JSON.stringify(data)
+
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+  })
+
+  res.end(body)
+}
+
+function sendText(res, statusCode, text) {
+  res.writeHead(statusCode, {
+    'Content-Type': 'text/plain; charset=utf-8',
+  })
+
+  res.end(text)
+}
+
 async function serveStatic(res, requestPath) {
-  if (!(await fileExists(distDir))) {
-    sendText(
-      res,
-      404,
-      'Build output not found. Run npm run build first.'
-    )
-    return
-  }
+  let filePath = path.join(distDir, requestPath)
 
-  let relativePath = decodeURIComponent(requestPath || '/')
-
-  if (relativePath.startsWith('/')) {
-    relativePath = relativePath.slice(1)
-  }
-
-  const requestedFile = path.resolve(distDir, relativePath)
-
-  if (
-    requestedFile !== distDir &&
-    !requestedFile.startsWith(`${distDir}${path.sep}`)
-  ) {
-    sendText(res, 403, 'Forbidden')
-    return
-  }
-
-  let filePath = requestedFile
-
-  if (await fileExists(filePath)) {
+  if (requestPath === '/') {
+    filePath = path.join(distDir, 'index.html')
+  } else if (await fileExists(filePath)) {
     const fileStats = await stat(filePath)
 
     if (fileStats.isDirectory()) {
@@ -225,6 +199,7 @@ async function handleFeaturedPosts(req, res) {
   const posts = await getFeaturedPosts()
 
   sendJson(res, 200, {
+    success: true,
     posts,
   })
 }
@@ -239,6 +214,10 @@ async function addFeaturedPost(req, res) {
   req.on('end', async () => {
     try {
       const post = JSON.parse(body)
+
+      if (!post || !post.id) {
+        throw new Error('Invalid post')
+      }
 
       const posts = await getFeaturedPosts()
 
@@ -264,6 +243,28 @@ async function addFeaturedPost(req, res) {
         error: 'Invalid data',
       })
     }
+  })
+}
+
+async function removeFeaturedPost(req, res, url) {
+  const postId = url.searchParams.get('id')
+
+  if (!postId) {
+    sendJson(res, 400, {
+      success: false,
+      error: 'Post id is required',
+    })
+    return
+  }
+
+  const posts = await getFeaturedPosts()
+  const updatedPosts = posts.filter((post) => post.id !== postId)
+
+  await saveFeaturedPosts(updatedPosts)
+
+  sendJson(res, 200, {
+    success: true,
+    posts: updatedPosts,
   })
 }
 
@@ -385,6 +386,14 @@ const server = http.createServer(async (req, res) => {
       return
     }
 
+    if (
+      method === 'DELETE' &&
+      url.pathname === '/api/admin/featured-posts'
+    ) {
+      await removeFeaturedPost(req, res, url)
+      return
+    }
+
     // Facebook status
     if (
       method === 'GET' &&
@@ -422,6 +431,6 @@ const server = http.createServer(async (req, res) => {
   }
 })
 
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`)
 })

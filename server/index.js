@@ -266,6 +266,7 @@ async function addFeaturedPost(req, res) {
     }
   })
 }
+
 async function handleFacebookStatus(req, res) {
   try {
     const data = await loadFacebookData()
@@ -290,6 +291,7 @@ async function handleFacebookStatus(req, res) {
     })
   }
 }
+
 async function handleFacebookPosts(req, res, url) {
   const limitParam = url.searchParams.get('limit')
   const limit = limitParam
@@ -380,6 +382,15 @@ const server = http.createServer(async (req, res) => {
       url.pathname === '/api/admin/featured-posts'
     ) {
       await addFeaturedPost(req, res)
+      return
+    }
+
+    // Facebook status
+    if (
+      method === 'GET' &&
+      url.pathname === '/api/facebook/status'
+    ) {
+      await handleFacebookStatus(req, res)
       return
     }
 

@@ -1,50 +1,64 @@
 import http from 'node:http'
 import { createReadStream } from 'node:fs'
-import { access, readFile, writeFile, stat } from 'node:fs/promises'
+import { access, readFile, writeFile, stat, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { fetchFacebookPosts } from './facebook.js'
 import {
   facebookLogin,
   facebookCallback,
 } from './routes/facebook-auth.js'
-import { facebookStatus, facebookTest } from './routes/facebook-status.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
 const projectRoot = path.resolve(__dirname, '..')
 const distDir = path.join(projectRoot, 'dist')
-const port = Number.parseInt(process.env.FACEBOOK_API_PORT || process.env.PORT || '8787', 10)
 const dataDir = path.join(__dirname, 'data')
+
 const featuredFile = path.join(dataDir, 'featured-posts.json')
 const settingsFile = path.join(dataDir, 'settings.json')
- async function getSettings() {
+
+const port = Number.parseInt(
+  process.env.FACEBOOK_API_PORT || process.env.PORT || '8787',
+  10
+)
+
+const DEFAULT_SETTINGS = {
+  site: {
+    name: '',
+    description: '',
+    phone: '',
+    whatsapp: '',
+    email: '',
+    address: '',
+    googleMaps: '',
+    hours: '',
+    facebook: '',
+    instagram: '',
+    tiktok: '',
+    telegram: '',
+    youtube: '',
+  },
+}
+
+async function ensureDataDirectory() {
+  await mkdir(dataDir, { recursive: true })
+}
+
+async function getSettings() {
   try {
     const data = await readFile(settingsFile, 'utf8')
-    return JSON.parse(data)
-  } catch {
     return {
-      site: {
-        name: '',
-        description: '',
-        phone: '',
-        whatsapp: '',
-        email: '',
-        address: '',
-        googleMaps: '',
-        hours: '',
-      },
-      social: {
-        facebook: '',
-        instagram: '',
-        tiktok: '',
-        telegram: '',
-        youtube: '',
-      },
-      navigation: [],
+      ...DEFAULT_SETTINGS,
+      ...JSON.parse(data),
     }
+  } catch {
+    return DEFAULT_SETTINGS
   }
 }
+
 async function saveSettings(settings) {
   await ensureDataDirectory()
 
@@ -56,10 +70,11 @@ async function saveSettings(settings) {
 
   return settings
 }
+
 async function updateSettings(req, res) {
   let body = ''
 
-  req.on('data', chunk => {
+  req.on('data', (chunk) => {
     body += chunk
   })
 
@@ -81,15 +96,6 @@ async function updateSettings(req, res) {
     }
   })
 }
-async function ensureDataDirectory() {
-  try {
-    await access(dataDir)
-  } catch {
-    await import('node:fs/promises').then(fs =>
-      fs.mkdir(dataDir, { recursive: true })
-    )
-  }
-}
 
 async function getFeaturedPosts() {
   try {
@@ -99,14 +105,17 @@ async function getFeaturedPosts() {
     return []
   }
 }
+
 async function saveFeaturedPosts(posts) {
   await ensureDataDirectory()
+
   await writeFile(
     featuredFile,
     JSON.stringify({ posts }, null, 2),
     'utf8'
   )
 }
+
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -124,10 +133,12 @@ const mimeTypes = {
 
 function sendJson(res, statusCode, payload) {
   const body = JSON.stringify(payload, null, 2)
+
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
   })
+
   res.end(body)
 }
 
@@ -136,11 +147,15 @@ function sendText(res, statusCode, message) {
     'Content-Type': 'text/plain; charset=utf-8',
     'Cache-Control': 'no-store',
   })
+
   res.end(message)
 }
 
 function getContentType(filePath) {
-  return mimeTypes[path.extname(filePath).toLowerCase()] || 'application/octet-stream'
+  return (
+    mimeTypes[path.extname(filePath).toLowerCase()] ||
+    'application/octet-stream'
+  )
 }
 
 async function fileExists(filePath) {
@@ -154,20 +169,35 @@ async function fileExists(filePath) {
 
 async function serveStatic(res, requestPath) {
   if (!(await fileExists(distDir))) {
-    sendText(res, 404, 'Build output not found. Run npm run build first.')
+    sendText(
+      res,
+      404,
+      'Build output not found. Run npm run build first.'
+    )
     return
   }
 
   let relativePath = decodeURIComponent(requestPath || '/')
+
   if (relativePath.startsWith('/')) {
     relativePath = relativePath.slice(1)
   }
 
-  let filePath = path.join(distDir, relativePath)
+  const requestedFile = path.resolve(distDir, relativePath)
 
-  const exists = await fileExists(filePath)
-  if (exists) {
+  if (
+    requestedFile !== distDir &&
+    !requestedFile.startsWith(`${distDir}${path.sep}`)
+  ) {
+    sendText(res, 403, 'Forbidden')
+    return
+  }
+
+  let filePath = requestedFile
+
+  if (await fileExists(filePath)) {
     const fileStats = await stat(filePath)
+
     if (fileStats.isDirectory()) {
       filePath = path.join(filePath, 'index.html')
     }
@@ -183,9 +213,14 @@ async function serveStatic(res, requestPath) {
   }
 
   const contentType = getContentType(filePath)
-  res.writeHead(200, { 'Content-Type': contentType })
+
+  res.writeHead(200, {
+    'Content-Type': contentType,
+  })
+
   createReadStream(filePath).pipe(res)
 }
+
 async function handleFeaturedPosts(req, res) {
   const posts = await getFeaturedPosts()
 
@@ -194,11 +229,10 @@ async function handleFeaturedPosts(req, res) {
   })
 }
 
-
 async function addFeaturedPost(req, res) {
   let body = ''
 
-  req.on('data', chunk => {
+  req.on('data', (chunk) => {
     body += chunk
   })
 
@@ -208,20 +242,23 @@ async function addFeaturedPost(req, res) {
 
       const posts = await getFeaturedPosts()
 
-      const exists = posts.some(item => item.id === post.id)
+      const exists = posts.some(
+        (item) => item.id === post.id
+      )
 
       if (!exists) {
         posts.unshift(post)
       }
 
-      await saveFeaturedPosts(posts.slice(0, 3))
+      const updatedPosts = posts.slice(0, 3)
+
+      await saveFeaturedPosts(updatedPosts)
 
       sendJson(res, 200, {
         success: true,
-        posts: posts.slice(0, 3),
+        posts: updatedPosts,
       })
-
-    } catch (error) {
+    } catch {
       sendJson(res, 400, {
         success: false,
         error: 'Invalid data',
@@ -229,86 +266,126 @@ async function addFeaturedPost(req, res) {
     }
   })
 }
+
 async function handleFacebookPosts(req, res, url) {
   const limitParam = url.searchParams.get('limit')
-  const limit = limitParam ? Number.parseInt(limitParam, 10) : 4
+  const limit = limitParam
+    ? Number.parseInt(limitParam, 10)
+    : 4
 
   try {
     const posts = await fetchFacebookPosts({ limit })
+
     sendJson(res, 200, {
       source: 'facebook',
       count: posts.length,
       posts,
       fetchedAt: new Date().toISOString(),
     })
-  } 
-  catch (error) {
-  const status = typeof error?.status === 'number' ? error.status : 503
+  } catch (error) {
+    const status =
+      typeof error?.status === 'number'
+        ? error.status
+        : 503
 
-  sendJson(res, status, {
-    success: false,
-    source: 'facebook',
-    posts: [],
-    error: error.message,
-  })
-}
+    sendJson(res, status, {
+      success: false,
+      source: 'facebook',
+      posts: [],
+      error: error?.message || 'Unable to fetch Facebook posts.',
+    })
+  }
 }
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
-  const method = (req.method || 'GET').toUpperCase()
-  if (method === 'GET' && url.pathname === '/api/settings') {
-  const settings = await getSettings()
+  try {
+    const url = new URL(
+      req.url || '/',
+      `http://${req.headers.host || 'localhost'}`
+    )
 
-  sendJson(res, 200, settings)
+    const method = (req.method || 'GET').toUpperCase()
 
-  return
-}
+    // Settings
+    if (
+      method === 'GET' &&
+      url.pathname === '/api/settings'
+    ) {
+      const settings = await getSettings()
 
-if (method === 'POST' && url.pathname === '/api/settings') {
-  await updateSettings(req, res)
+      sendJson(res, 200, settings)
+      return
+    }
 
-  return
-}
-  if (method === 'GET' && url.pathname === '/auth/facebook') {
-  await facebookLogin(req, res)
-  return
-}
+    if (
+      method === 'POST' &&
+      url.pathname === '/api/settings'
+    ) {
+      await updateSettings(req, res)
+      return
+    }
 
-if (method === 'GET' && url.pathname === '/auth/facebook/callback') {
-  req.url = url
-  await facebookCallback(req, res)
-  return
-}
-if (method === 'GET' && url.pathname === '/api/facebook/status') {
-  await facebookStatus(req, res)
-  return
-}
+    // Facebook OAuth
+    if (
+      method === 'GET' &&
+      url.pathname === '/auth/facebook'
+    ) {
+      await facebookLogin(req, res)
+      return
+    }
 
-if (method === 'GET' && url.pathname === '/api/facebook/test') {
-  await facebookTest(req, res)
-  return
-}
-if (method === 'GET' && url.pathname === '/api/admin/featured-posts') {
-  await handleFeaturedPosts(req, res)
-  return
-}
+    if (
+      method === 'GET' &&
+      url.pathname === '/auth/facebook/callback'
+    ) {
+      req.url = url
+      await facebookCallback(req, res)
+      return
+    }
 
-if (method === 'POST' && url.pathname === '/api/admin/featured-posts') {
-  await addFeaturedPost(req, res)
-  return
-}
-if (method === 'GET' && url.pathname === '/api/facebook/posts') {
-     await handleFacebookPosts(req, res, url)
-    return
+    // Featured posts
+    if (
+      method === 'GET' &&
+      url.pathname === '/api/admin/featured-posts'
+    ) {
+      await handleFeaturedPosts(req, res)
+      return
+    }
+
+    if (
+      method === 'POST' &&
+      url.pathname === '/api/admin/featured-posts'
+    ) {
+      await addFeaturedPost(req, res)
+      return
+    }
+
+    // Facebook posts
+    if (
+      method === 'GET' &&
+      url.pathname === '/api/facebook/posts'
+    ) {
+      await handleFacebookPosts(req, res, url)
+      return
+    }
+
+    // Static frontend
+    if (method === 'GET') {
+      await serveStatic(res, url.pathname)
+      return
+    }
+
+    sendText(res, 405, 'Method Not Allowed')
+  } catch (error) {
+    console.error('Server request error:', error)
+
+    if (!res.headersSent) {
+      sendJson(res, 500, {
+        success: false,
+        error: 'Internal server error',
+      })
+    }
   }
-
-  if (method === 'GET') {
-    await serveStatic(res, url.pathname)
-    return
-  }
-
-  sendText(res, 405, 'Method Not Allowed')
 })
 
 server.listen(port, '0.0.0.0', () => {

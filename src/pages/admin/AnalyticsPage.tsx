@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import AdminBackButton from './AdminBackButton'
 
 type AnalyticsDay = { date: string; visits: number; visitors: number; events: Record<string, number> }
 type AnalyticsData = { days: AnalyticsDay[]; totals: { visits: number; visitors: number; events: Record<string, number> } }
@@ -48,7 +47,6 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-slate-100 p-4 sm:p-8" dir="rtl">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6"><AdminBackButton /></div>
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">📊 الإحصائيات</h1>

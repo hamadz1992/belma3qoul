@@ -19,15 +19,20 @@ function SectionHeading({
 
   return (
     <div className={`${alignClass} max-w-3xl`}>
-      <p className="text-sm font-semibold tracking-[0.2em] uppercase text-rose-500">
-        {eyebrow}
-      </p>
+      {eyebrow ? (
+        <div className="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-600 shadow-sm">
+          <span className="h-2 w-2 rounded-full bg-rose-500" aria-hidden="true" />
+          <span>{eyebrow}</span>
+        </div>
+      ) : null}
 
-      <h2
-  className={`mt-3 font-black text-slate-950 ${titleClassName || 'text-4xl'}`}
->
-  {title}
-</h2>
+      {title ? (
+        <h2
+          className={`mt-3 font-black tracking-tight text-slate-950 ${titleClassName || 'text-4xl'}`}
+        >
+          {title}
+        </h2>
+      ) : null}
 
       {description ? (
         <p

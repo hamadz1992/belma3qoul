@@ -24,7 +24,7 @@ function HomePage() {
   const mapsUrl = normalizeUrl(siteSettings.googleMaps, siteConfig.mapsUrl)
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white pb-12">
+    <div className="relative min-h-screen overflow-x-hidden bg-transparent pb-12">
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-fixed" style={{ backgroundImage: `url(${heroBanner})` }}><div className="absolute inset-0 bg-white/90 backdrop-blur-[1px]" /></div>
       <div className="relative z-10">
         <section id="home" className="border-b border-rose-100/60 bg-transparent"><div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12"><div className="relative overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/45 p-6 shadow-xl shadow-slate-300/20 backdrop-blur-sm sm:p-10"><div className="mx-auto max-w-3xl text-center"><span className="inline-flex rounded-full bg-white/80 px-4 py-1.5 text-xs font-bold text-rose-600 shadow-sm">كل شيء بالمعقول</span><h1 className="mt-4 text-3xl font-black leading-tight text-slate-900 sm:text-5xl">كل ما تحتاجه... بالمعقول</h1><p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-700 sm:text-base">اكتشف جديدنا وتابع أحدث المنشورات والعروض الخاصة بالمحل.</p><a href="#featured" className="mt-6 inline-flex rounded-full bg-rose-600 px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-rose-700">اكتشف جديدنا</a></div></div></div></section>

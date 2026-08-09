@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import SectionHeading from '../../components/common/SectionHeading'
 import AdBoard from '../../components/common/AdBoard'
 import NewsTicker from '../../components/common/NewsTicker'
+import FacebookLikePopup from '../../components/common/FacebookLikePopup'
 import { siteConfig } from '../../constants/site'
 import { getFacebookPosts, type FacebookPost } from '../../api/facebook'
 
@@ -18,8 +19,18 @@ function HomePage() {
   const [loading, setLoading] = useState(true)
   const [featuredLoading, setFeaturedLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showFacebookPopup, setShowFacebookPopup] = useState(false)
 
   useEffect(() => { track('page_view') }, [])
+  useEffect(() => {
+    const storageKey = 'belma3qoul_facebook_popup_seen'
+    if (localStorage.getItem(storageKey)) return
+    const timer = window.setTimeout(() => {
+      setShowFacebookPopup(true)
+      localStorage.setItem(storageKey, String(Date.now()))
+    }, 8000)
+    return () => window.clearTimeout(timer)
+  }, [])
   useEffect(() => { let isMounted = true; async function loadSettings() { try { const response = await fetch('/api/settings'); if (!response.ok) throw new Error('Failed to load site settings'); const data = await response.json(); if (isMounted && data?.site) setSiteSettings((current) => ({ ...current, ...data.site })) } catch (error) { console.error('Failed to load site settings:', error) } } void loadSettings(); return () => { isMounted = false } }, [])
   useEffect(() => { let isMounted = true; async function loadPosts() { try { const data = await getFacebookPosts(4); if (isMounted) { setPosts(data); setError(null) } } catch (err) { console.error(err); if (isMounted) setError('تعذر تحميل المنشورات الآن') } finally { if (isMounted) setLoading(false) } } void loadPosts(); return () => { isMounted = false } }, [])
   useEffect(() => { let isMounted = true; async function loadFeaturedPosts() { try { const response = await fetch('/api/admin/featured-posts', { cache: 'no-store' }); if (!response.ok) throw new Error('Failed to load featured posts'); const data = await response.json(); if (isMounted) setFeaturedPosts(Array.isArray(data?.posts) ? data.posts : []) } catch (error) { console.error('Failed to load featured posts:', error); if (isMounted) setFeaturedPosts([]) } finally { if (isMounted) setFeaturedLoading(false) } } void loadFeaturedPosts(); return () => { isMounted = false } }, [])
@@ -27,6 +38,7 @@ function HomePage() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#f5f7fb] pb-3">
+      <FacebookLikePopup open={showFacebookPopup} onClose={() => setShowFacebookPopup(false)} facebookUrl={siteConfig.facebookUrl} onOpenFacebook={() => track('facebook_follow_popup_click')} />
       <div className="relative z-10">
         <NewsTicker />
         <section id="featured" className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

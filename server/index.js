@@ -20,6 +20,7 @@ const dataDir = path.join(__dirname, 'data')
 
 const featuredFile = path.join(dataDir, 'featured-posts.json')
 const settingsFile = path.join(dataDir, 'settings.json')
+const analyticsFile = path.join(dataDir, 'analytics.json')
 
 const port = Number.parseInt(
   process.env.FACEBOOK_API_PORT || process.env.PORT || '8787',
@@ -50,6 +51,7 @@ const SESSION_TTL_MS = 8 * 60 * 60 * 1000
 const LOGIN_WINDOW_MS = 15 * 60 * 1000
 const MAX_LOGIN_ATTEMPTS = 5
 const ADMIN_COOKIE = '__Host-belma3qoul_admin'
+const VISITOR_COOKIE = '__Host-belma3qoul_visitor'
 
 function text(value) {
   return typeof value === 'string' ? value.trim() : ''
@@ -260,6 +262,92 @@ async function saveFeaturedPosts(posts) {
   await writeFile(featuredFile, JSON.stringify({ posts }, null, 2), 'utf8')
 }
 
+const DEFAULT_ANALYTICS = { days: {} }
+
+function analyticsDayKey(value = Date.now()) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Algiers' }).format(new Date(value))
+}
+
+async function getAnalytics() {
+  try {
+    const data = await readFile(analyticsFile, 'utf8')
+    const parsed = JSON.parse(data)
+    return parsed && typeof parsed === 'object' && parsed.days ? parsed : DEFAULT_ANALYTICS
+  } catch {
+    return DEFAULT_ANALYTICS
+  }
+}
+
+async function saveAnalytics(data) {
+  await ensureDataDirectory()
+  await writeFile(analyticsFile, JSON.stringify(data, null, 2), 'utf8')
+}
+
+function getVisitorId(req) {
+  const existing = getCookie(req, VISITOR_COOKIE)
+  return existing || crypto.randomBytes(18).toString('hex')
+}
+
+function setVisitorCookie(req, res, visitorId) {
+  if (getCookie(req, VISITOR_COOKIE)) return
+  const secure = isHttps(req) ? '; Secure' : ''
+  res.setHeader('Set-Cookie', `${VISITOR_COOKIE}=${encodeURIComponent(visitorId)}; Path=/; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}${secure}`)
+}
+
+async function trackAnalyticsEvent(req, res) {
+  if (!isSameOrigin(req)) {
+    sendJson(res, 403, { success: false, error: 'Invalid request origin' })
+    return
+  }
+  try {
+    const body = await readRequestJson(req)
+    const event = text(body.event).slice(0, 80)
+    if (!event) { sendJson(res, 400, { success: false, error: 'Event is required' }); return }
+    const visitorId = getVisitorId(req)
+    const dayKey = analyticsDayKey()
+    const analytics = await getAnalytics()
+    const day = analytics.days[dayKey] || { visits: 0, visitors: [], events: {} }
+    if (event === 'page_view') {
+      day.visits += 1
+      if (!day.visitors.includes(visitorId)) day.visitors.push(visitorId)
+    } else {
+      day.events[event] = (day.events[event] || 0) + 1
+    }
+    analytics.days[dayKey] = day
+    const keys = Object.keys(analytics.days).sort()
+    for (const key of keys.slice(0, -120)) delete analytics.days[key]
+    await saveAnalytics(analytics)
+    setVisitorCookie(req, res, visitorId)
+    sendJson(res, 200, { success: true })
+  } catch {
+    sendJson(res, 400, { success: false, error: 'Invalid analytics event' })
+  }
+}
+
+function aggregateAnalytics(analytics, daysBack = 30) {
+  const today = new Date()
+  const result = []
+  const totals = { visits: 0, visitors: 0, events: {} }
+  for (let offset = daysBack - 1; offset >= 0; offset -= 1) {
+    const date = new Date(today)
+    date.setDate(today.getDate() - offset)
+    const key = analyticsDayKey(date)
+    const day = analytics.days[key] || { visits: 0, visitors: [], events: {} }
+    const visitors = Array.isArray(day.visitors) ? day.visitors.length : 0
+    result.push({ date: key, visits: Number(day.visits || 0), visitors, events: day.events || {} })
+    totals.visits += Number(day.visits || 0)
+    totals.visitors += visitors
+    for (const [event, count] of Object.entries(day.events || {})) totals.events[event] = (totals.events[event] || 0) + Number(count || 0)
+  }
+  return { days: result, totals }
+}
+
+async function handleAnalytics(req, res) {
+  if (!requireAdmin(req, res)) return
+  const analytics = await getAnalytics()
+  sendJson(res, 200, { success: true, ...aggregateAnalytics(analytics, 30) })
+}
+
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
@@ -384,6 +472,9 @@ const server = http.createServer(async (req, res) => {
     if (method === 'POST' && url.pathname === '/api/auth/login') { await handleAdminLogin(req, res); return }
     if (method === 'GET' && url.pathname === '/api/auth/session') { handleAdminSession(req, res); return }
     if (method === 'POST' && url.pathname === '/api/auth/logout') { handleAdminLogout(req, res); return }
+
+    if (method === 'POST' && url.pathname === '/api/analytics/event') { await trackAnalyticsEvent(req, res); return }
+    if (method === 'GET' && url.pathname === '/api/admin/analytics') { await handleAnalytics(req, res); return }
 
     if (method === 'GET' && url.pathname === '/api/settings') { sendJson(res, 200, await getSettings()); return }
     if (method === 'POST' && url.pathname === '/api/settings') { await updateSettings(req, res); return }

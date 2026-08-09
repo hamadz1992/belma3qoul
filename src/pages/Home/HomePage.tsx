@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import siteBackground from '../../assets/user-site-background'
 import SectionHeading from '../../components/common/SectionHeading'
 import AdBoard from '../../components/common/AdBoard'
 import { siteConfig } from '../../constants/site'
@@ -18,7 +17,7 @@ function HomePage() {
   const [featuredLoading, setFeaturedLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => { let isMounted = true; async function loadSettings() { try { const response = await fetch('/api/settings'); if (!response.ok) throw new Error('Failed to load settings'); const data = await response.json(); if (isMounted && data?.site) setSiteSettings((current) => ({ ...current, ...data.site })) } catch (error) { console.error('Failed to load site settings:', error) } } void loadSettings(); return () => { isMounted = false } }, [])
+  useEffect(() => { let isMounted = true; async function loadSettings() { try { const response = await fetch('/api/settings'); if (!response.ok) throw new Error('Failed to load site settings'); const data = await response.json(); if (isMounted && data?.site) setSiteSettings((current) => ({ ...current, ...data.site })) } catch (error) { console.error('Failed to load site settings:', error) } } void loadSettings(); return () => { isMounted = false } }, [])
   useEffect(() => { let isMounted = true; async function loadPosts() { try { const data = await getFacebookPosts(4); if (isMounted) { setPosts(data); setError(null) } } catch (err) { console.error(err); if (isMounted) setError('تعذر تحميل المنشورات الآن') } finally { if (isMounted) setLoading(false) } } void loadPosts(); return () => { isMounted = false } }, [])
   useEffect(() => { let isMounted = true; async function loadFeaturedPosts() { try { const response = await fetch('/api/admin/featured-posts', { cache: 'no-store' }); if (!response.ok) throw new Error('Failed to load featured posts'); const data = await response.json(); if (isMounted) setFeaturedPosts(Array.isArray(data?.posts) ? data.posts : []) } catch (error) { console.error('Failed to load featured posts:', error); if (isMounted) setFeaturedPosts([]) } finally { if (isMounted) setFeaturedLoading(false) } } void loadFeaturedPosts(); return () => { isMounted = false } }, [])
   const mapsUrl = normalizeUrl(siteSettings.googleMaps, siteConfig.mapsUrl)

@@ -4,6 +4,7 @@ export interface FacebookPost {
   createdTime: string
   permalinkUrl: string
   imageUrl: string
+  videoUrl?: string
 }
 
 interface FacebookResponse {

@@ -42,8 +42,8 @@ export default function ContactLinksPage() {
   useEffect(() => {
     async function load() {
       try {
-        const response = await fetch('/api/settings', { cache: 'no-store' })
-        if (!response.ok) throw new Error('Failed to load settings')
+        const response = await fetch('/api/settings', { cache: 'no-store', credentials: 'same-origin' })
+        if (!response.ok) throw new Error(`Failed to load settings: ${response.status}`)
         const data = await response.json()
         setSocial({ ...defaultSocialLinks, ...(data?.social || {}) })
       } catch (error) {
@@ -61,19 +61,20 @@ export default function ContactLinksPage() {
   async function saveLinks() {
     setSaving(true)
     try {
-      const getResponse = await fetch('/api/settings', { cache: 'no-store' })
-      if (!getResponse.ok) throw new Error('Failed to load current settings')
-      const currentSettings = await getResponse.json()
       const response = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...currentSettings, social }),
+        credentials: 'same-origin',
+        body: JSON.stringify({ social }),
       })
-      if (!response.ok) throw new Error('Failed to save social links')
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data?.error || `Failed to save social links: ${response.status}`)
+      setSocial({ ...defaultSocialLinks, ...(data?.settings?.social || social) })
       alert('✅ تم حفظ روابط التواصل')
     } catch (error) {
       console.error(error)
-      alert('❌ حدث خطأ أثناء حفظ روابط التواصل')
+      const message = error instanceof Error ? error.message : 'تعذر حفظ روابط التواصل'
+      alert(`❌ ${message}`)
     } finally {
       setSaving(false)
     }

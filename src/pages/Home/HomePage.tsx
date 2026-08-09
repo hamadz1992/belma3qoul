@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import heroBanner from '../../assets/images/hero-banner.jpg'
+import siteBackground from '../../assets/user-site-background'
 import SectionHeading from '../../components/common/SectionHeading'
 import AdBoard from '../../components/common/AdBoard'
 import { siteConfig } from '../../constants/site'
@@ -25,7 +25,7 @@ function HomePage() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-transparent pb-3">
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-fixed" style={{ backgroundImage: `url(${heroBanner})`, filter: 'blur(5px)', transform: 'scale(1.03)' }}><div className="absolute inset-0 bg-white/72" /></div>
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-fixed" style={{ backgroundImage: `url(${siteBackground})`, filter: 'blur(5px)', transform: 'scale(1.03)' }}><div className="absolute inset-0 bg-white/72" /></div>
       <div className="relative z-10">
         <section id="featured" className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
           <article className="rounded-[2rem] border border-white bg-white p-6 shadow-lg shadow-slate-300/20 sm:p-8"><SectionHeading eyebrow="جديدنا" title="" description="" />{loading ? <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-8 text-center text-slate-500">جارٍ تحميل المنشورات...</div> : error ? <div className="mt-8 rounded-[1.5rem] border border-rose-200 bg-rose-50 p-6 text-center text-rose-700">{error}</div> : posts.length === 0 ? <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-8 text-center text-slate-500">لا توجد منشورات متاحة حاليًا.</div> : <div className="mt-8 space-y-4">{posts.map((post) => <a key={post.id} href={post.permalinkUrl} target="_blank" rel="noreferrer" className="flex gap-4 rounded-[1.5rem] border border-slate-100 bg-white p-3 transition duration-300 hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-sm"><div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">{post.videoUrl ? <video src={post.videoUrl} poster={post.imageUrl || undefined} muted playsInline preload="metadata" className="h-full w-full object-cover" /> : post.imageUrl ? <img src={post.imageUrl} alt={post.message} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-gradient-to-br from-rose-100 via-white to-fuchsia-100" />}</div><div className="min-w-0 flex-1 text-right"><div className="flex items-center justify-between gap-3"><span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-rose-600 uppercase">Facebook</span><span className="text-[11px] text-slate-500">{formatDate(post.createdTime)}</span></div><p className="mt-2 text-[13px] leading-5 text-slate-600" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.message}</p></div></a>)}</div>}</article>

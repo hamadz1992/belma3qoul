@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { getFacebookPosts, type FacebookPost } from '../../api/facebook'
+import { getFacebookPostById, getFacebookPosts, type FacebookPost } from '../../api/facebook'
 
 export default function FeaturedPostsPage() {
   const [posts, setPosts] = useState<FacebookPost[]>([])
   const [featuredPosts, setFeaturedPosts] = useState<FacebookPost[]>([])
+  const [reelUrl, setReelUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [featuredLoading, setFeaturedLoading] = useState(true)
+  const [reelLoading, setReelLoading] = useState(false)
   const [busyId, setBusyId] = useState('')
   const [error, setError] = useState('')
 
@@ -62,6 +64,29 @@ export default function FeaturedPostsPage() {
     }
   }
 
+  const importReel = async () => {
+    if (!reelUrl.trim()) {
+      setError('أدخل رابط Facebook Reel أولًا')
+      return
+    }
+
+    try {
+      setReelLoading(true)
+      setError('')
+      const post = await getFacebookPostById(reelUrl.trim())
+      setPosts((current) => [post, ...current.filter((item) => item.id !== post.id)])
+      setReelUrl('')
+
+      if (featuredPosts.length < 3 && !isFeatured(post.id)) {
+        await addFeaturedPost(post)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'تعذر جلب الـReel من Facebook')
+    } finally {
+      setReelLoading(false)
+    }
+  }
+
   const removeFeaturedPost = async (postId: string) => {
     try {
       setBusyId(postId)
@@ -85,10 +110,35 @@ export default function FeaturedPostsPage() {
             <h1 className="text-4xl font-bold">⭐ إدارة المنشورات المميزة</h1>
             <p className="mt-2 text-sm text-slate-500">اختر منشورات Facebook التي تريد إبرازها في الموقع.</p>
           </div>
-          <button type="button" onClick={() => { void loadPosts(); void loadFeaturedPosts() }} disabled={loading || featuredLoading} className="rounded-xl border bg-white px-5 py-3 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:opacity-50">
+          <button type="button" onClick={() => { void loadPosts(); void loadFeaturedPosts() }} disabled={loading || featuredLoading || reelLoading} className="rounded-xl border bg-white px-5 py-3 text-sm font-medium shadow-sm hover:bg-slate-50 disabled:opacity-50">
             {loading || featuredLoading ? 'جاري التحديث...' : 'تحديث'}
           </button>
         </div>
+
+        <section className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+          <div className="mb-3">
+            <h2 className="text-xl font-bold">🎬 جلب Reel مباشرة</h2>
+            <p className="mt-1 text-sm text-slate-600">إذا كان الـReel غير موجود ضمن آخر 20 منشورًا، ألصق رابطه هنا لجلبه مباشرة من Facebook.</p>
+          </div>
+          <div className="flex flex-col gap-3 md:flex-row">
+            <input
+              value={reelUrl}
+              onChange={(event) => setReelUrl(event.target.value)}
+              placeholder="https://www.facebook.com/reel/843068614725320"
+              dir="ltr"
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
+            />
+            <button
+              type="button"
+              onClick={() => void importReel()}
+              disabled={reelLoading || featuredPosts.length >= 3}
+              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              {reelLoading ? 'جاري الجلب...' : 'جلب وتثبيت الـReel'}
+            </button>
+          </div>
+          {featuredPosts.length >= 3 && <p className="mt-2 text-xs text-amber-700">لديك 3 منشورات مثبتة. ألغِ تثبيت أحدها أولًا لإضافة الـReel.</p>}
+        </section>
 
         {error && <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 

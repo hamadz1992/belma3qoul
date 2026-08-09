@@ -9,6 +9,7 @@ import FeaturedPostsPage from '../pages/admin/FeaturedPostsPage'
 import SiteSettingsPage from '../pages/admin/SiteSettingsPage'
 import ContactLinksPage from '../pages/admin/ContactLinksPage'
 import AdBoardPage from '../pages/admin/AdBoardPage'
+import AnalyticsPage from '../pages/admin/AnalyticsPage'
 import AdminGuard from '../pages/admin/AdminGuard'
 
 function NotFoundPage() {
@@ -21,6 +22,7 @@ function AppRouter() {
       <Route path="/admin" element={<SecureLoginPage />} />
       <Route element={<AdminGuard />}>
         <Route path="/admin/dashboard" element={<DashboardPage />} />
+        <Route path="/admin/analytics" element={<AnalyticsPage />} />
         <Route path="/admin/featured-posts" element={<FeaturedPostsPage />} />
         <Route path="/admin/facebook" element={<FacebookPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />

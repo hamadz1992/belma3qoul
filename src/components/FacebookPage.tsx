@@ -19,6 +19,7 @@ interface FacebookPost {
 }
 
 interface FacebookPostsResponse {
+  success?: boolean
   source: string
   count: number
   posts: FacebookPost[]
@@ -65,9 +66,7 @@ export default function FacebookPage() {
       const response = await fetch('/api/facebook/posts?limit=4', {
         cache: 'no-store',
       })
-      const data = (await response.json()) as FacebookPostsResponse & {
-        success?: boolean
-      }
+      const data = (await response.json()) as FacebookPostsResponse
 
       if (!response.ok || data.success === false) {
         throw new Error(data.error || 'تعذر تحميل المنشورات')

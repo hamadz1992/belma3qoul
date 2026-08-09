@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 type SocialLinks = {
   facebook: string
   instagram: string
+  whatsapp: string
+  messenger: string
   tiktok: string
   telegram: string
   youtube: string
@@ -11,6 +13,8 @@ type SocialLinks = {
 const defaultSocialLinks: SocialLinks = {
   facebook: '',
   instagram: '',
+  whatsapp: '',
+  messenger: '',
   tiktok: '',
   telegram: '',
   youtube: '',
@@ -22,36 +26,13 @@ const fields: Array<{
   placeholder: string
   icon: string
 }> = [
-  {
-    key: 'facebook',
-    label: 'Facebook',
-    placeholder: 'https://facebook.com/...',
-    icon: '📘',
-  },
-  {
-    key: 'instagram',
-    label: 'Instagram',
-    placeholder: 'https://instagram.com/...',
-    icon: '📸',
-  },
-  {
-    key: 'tiktok',
-    label: 'TikTok',
-    placeholder: 'https://tiktok.com/@...',
-    icon: '🎵',
-  },
-  {
-    key: 'telegram',
-    label: 'Telegram',
-    placeholder: 'https://t.me/...',
-    icon: '✈️',
-  },
-  {
-    key: 'youtube',
-    label: 'YouTube',
-    placeholder: 'https://youtube.com/@...',
-    icon: '▶️',
-  },
+  { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/...', icon: '📘' },
+  { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/...', icon: '📸' },
+  { key: 'whatsapp', label: 'WhatsApp', placeholder: 'https://wa.me/213...', icon: '🟢' },
+  { key: 'messenger', label: 'Messenger', placeholder: 'https://m.me/...', icon: '💬' },
+  { key: 'tiktok', label: 'TikTok', placeholder: 'https://tiktok.com/@...', icon: '🎵' },
+  { key: 'telegram', label: 'Telegram', placeholder: 'https://t.me/...', icon: '✈️' },
+  { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@...', icon: '▶️' },
 ]
 
 export default function ContactLinksPage() {
@@ -76,7 +57,7 @@ export default function ContactLinksPage() {
       }
     }
 
-    load()
+    void load()
   }, [])
 
   function updateLink(key: keyof SocialLinks, value: string) {
@@ -90,7 +71,6 @@ export default function ContactLinksPage() {
     setSaving(true)
 
     try {
-      // Preserve all existing settings and update only the social section.
       const getResponse = await fetch('/api/settings', { cache: 'no-store' })
       if (!getResponse.ok) throw new Error('Failed to load current settings')
 
@@ -107,9 +87,7 @@ export default function ContactLinksPage() {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to save social links')
-      }
+      if (!response.ok) throw new Error('Failed to save social links')
 
       alert('✅ تم حفظ روابط التواصل')
     } catch (error) {
@@ -124,26 +102,18 @@ export default function ContactLinksPage() {
     <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8" dir="rtl">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-950">
-            📱 روابط التواصل
-          </h1>
-          <p className="mt-2 text-slate-500">
-            هنا فقط تتحكم في روابط حسابات المحل التي تظهر في الموقع.
-          </p>
+          <h1 className="text-3xl font-extrabold text-slate-950">📱 روابط التواصل</h1>
+          <p className="mt-2 text-slate-500">هنا تتحكم في روابط حسابات المحل التي تظهر في الموقع، بما فيها WhatsApp وMessenger.</p>
         </div>
 
         <div className="rounded-3xl bg-white p-5 shadow sm:p-8">
           <div className="space-y-5">
             {fields.map((field) => (
-              <div
-                key={field.key}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-              >
+              <div key={field.key} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <label className="mb-2 flex items-center gap-2 font-bold text-slate-900">
                   <span>{field.icon}</span>
                   {field.label}
                 </label>
-
                 <input
                   type="url"
                   value={social[field.key]}

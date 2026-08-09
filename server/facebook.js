@@ -57,7 +57,7 @@ function extractMedia(post) {
   }
 
   let imageUrl = textOrEmpty(post?.full_picture)
-  let videoUrl = ''
+  let videoUrl = textOrEmpty(post?.source)
   let mediaType = ''
 
   for (const attachment of candidates) {
@@ -105,6 +105,72 @@ function normalizePost(post) {
   }
 }
 
+function normalizeFacebookId(value) {
+  const raw = textOrEmpty(value)
+  if (!raw) return ''
+
+  try {
+    const parsed = new URL(raw)
+    const match = parsed.pathname.match(/(?:reel|videos?)\/(\d+)/i)
+    if (match?.[1]) return match[1]
+  } catch {
+    // Treat non-URL input as an ID below.
+  }
+
+  return raw
+}
+
+export async function fetchFacebookPostById(value) {
+  const connection = await getFacebookConnection()
+
+  if (!connection.pageId || !connection.accessToken) {
+    const error = new Error('Facebook is not connected.')
+    error.code = 'FACEBOOK_NOT_CONNECTED'
+    throw error
+  }
+
+  const postId = normalizeFacebookId(value)
+
+  if (!postId) {
+    const error = new Error('Facebook Reel URL or ID is required.')
+    error.status = 400
+    throw error
+  }
+
+  const endpoint = new URL(
+    `https://graph.facebook.com/${getGraphVersion()}/${postId}`
+  )
+
+  endpoint.searchParams.set(
+    'fields',
+    'id,message,created_time,permalink_url,full_picture,source,attachments{media_type,media{image,source},url,subattachments{media_type,media{image,source},url}}'
+  )
+  endpoint.searchParams.set('access_token', connection.accessToken)
+
+  const response = await fetch(endpoint)
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '')
+    console.error('Facebook Reel API Error:', response.status)
+    console.error(body)
+
+    const error = new Error(body || 'Unable to fetch Facebook Reel.')
+    error.status = response.status
+    throw error
+  }
+
+  const payload = await response.json()
+  const post = normalizePost(payload)
+
+  if (!post.id) {
+    const error = new Error('Facebook Reel was not found.')
+    error.status = 404
+    throw error
+  }
+
+  return post
+}
+
 export async function fetchFacebookPosts({ limit = 4 } = {}) {
   const safeLimit = Number.isFinite(limit)
     ? Math.max(1, Math.min(20, Math.floor(limit)))
@@ -129,8 +195,6 @@ export async function fetchFacebookPosts({ limit = 4 } = {}) {
     `https://graph.facebook.com/${getGraphVersion()}/${connection.pageId}/feed`
   )
 
-  // Keep the feed fields compatible with the previously working Facebook request.
-  // Video source is optional; the public permalink is retained for Reels.
   endpoint.searchParams.set(
     'fields',
     'id,message,created_time,permalink_url,full_picture,attachments{media_type,media{image,source},url,subattachments{media_type,media{image,source},url}}'

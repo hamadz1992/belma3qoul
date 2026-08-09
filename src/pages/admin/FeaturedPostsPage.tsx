@@ -33,7 +33,7 @@ export default function FeaturedPostsPage() {
     try {
       setLoading(true)
       setError('')
-      const data = await getFacebookPosts(10)
+      const data = await getFacebookPosts(20)
       setPosts(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'تعذر تحميل منشورات Facebook')
@@ -181,7 +181,17 @@ export default function FeaturedPostsPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">📱 منشورات Facebook</h2>
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold">📱 منشورات Facebook</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                يتم عرض آخر 20 منشورًا متاحًا للاختيار منها.
+              </p>
+            </div>
+            <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+              {posts.length} منشور
+            </span>
+          </div>
 
           {loading ? (
             <p>جارٍ تحميل المنشورات...</p>

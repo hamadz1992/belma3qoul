@@ -9,17 +9,19 @@
     "googleMaps": "https://maps.app.goo.gl/sP44VaFV64MTR3QR8",
     "email": "",
     "facebook": "https://facebook.com/ma3qoulshop",
-    "instagram": "",
-    "tiktok": "",
+    "instagram": "https://www.instagram.com/belma3qoul",
+    "tiktok": "https://www.tiktok.com/@belma3qoul",
     "telegram": "",
     "youtube": ""
   },
   "social": {
-    "facebook": "http://localhost:8787/api/settings",
-    "instagram": "",
-    "tiktok": "",
+    "facebook": "https://www.facebook.com/ma3qoulshop",
+    "instagram": "https://www.instagram.com/belma3qoul",
+    "tiktok": "https://www.tiktok.com/@belma3qoul",
     "telegram": "",
-    "youtube": ""
+    "youtube": "",
+    "whatsapp": "https://wa.me/213779156397",
+    "messenger": "https://m.me/ma3qoulshop"
   },
   "navigation": [
     {
@@ -31,7 +33,7 @@
     {
       "icon": "🔥",
       "label": "عروضنا",
-      "href": "http://localhost:8787/api/settings",
+      "href": "",
       "enabled": true
     },
     {
@@ -42,7 +44,7 @@
     },
     {
       "icon": "📍",
-      "label": "مقعنا",
+      "label": "موقعنا",
       "href": "",
       "enabled": false
     }

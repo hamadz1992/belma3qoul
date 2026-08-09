@@ -39,7 +39,14 @@ export async function saveFacebookData(data) {
     ...data,
   }
 
-  console.log(updated)
+  console.log('Facebook data saved successfully:', {
+  connected: updated.connected,
+  pageId: updated.pageId,
+  pageName: updated.pageName,
+  hasPageAccessToken: Boolean(updated.pageAccessToken),
+  hasUserAccessToken: Boolean(updated.userAccessToken),
+  connectedAt: updated.connectedAt,
+})
 
   await writeFile(
     DATA_FILE,

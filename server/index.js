@@ -3,7 +3,7 @@ import { createReadStream } from 'node:fs'
 import { access, readFile, writeFile, stat, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
+import { loadFacebookData } from './facebook-storage.js'
 import { fetchFacebookPosts } from './facebook.js'
 import {
   facebookLogin,
@@ -266,7 +266,30 @@ async function addFeaturedPost(req, res) {
     }
   })
 }
+async function handleFacebookStatus(req, res) {
+  try {
+    const data = await loadFacebookData()
 
+    sendJson(res, 200, {
+      success: true,
+      connected: Boolean(data.connected && data.pageAccessToken),
+      pageId: data.pageId || '',
+      pageName: data.pageName || '',
+      connectedAt: data.connectedAt || '',
+      expiresAt: data.expiresAt || '',
+    })
+  } catch (error) {
+    sendJson(res, 500, {
+      success: false,
+      connected: false,
+      pageId: '',
+      pageName: '',
+      connectedAt: '',
+      expiresAt: '',
+      error: String(error),
+    })
+  }
+}
 async function handleFacebookPosts(req, res, url) {
   const limitParam = url.searchParams.get('limit')
   const limit = limitParam

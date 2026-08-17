@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#075b43">
+<title>لوحة تحكم مفاجأة بزار</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#effaf5,#fff,#fff8e7);color:#17352d;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;padding:18px}.wrap{width:min(100%,760px);margin:auto}.top{background:linear-gradient(145deg,#075b43,#087653,#c99a32);color:#fff;border-radius:26px;padding:22px;text-align:center;box-shadow:0 16px 45px #123b2a22}.top h1{margin:0;font-size:25px}.top p{margin:8px 0 0;font-size:13px;opacity:.95}.panel{background:#fff;border:1px solid #e6eee9;border-radius:22px;padding:18px;margin-top:14px;box-shadow:0 10px 30px #123b2a10}.panel h2{font-size:17px;color:#075b43;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}@media(max-width:620px){.grid{grid-template-columns:1fr}}label{display:block;font-size:12px;font-weight:800;margin:0 0 6px;color:#45635a}input,textarea,select{width:100%;border:1px solid #dbe7e1;border-radius:13px;background:#fbfdfc;padding:11px 12px;font:inherit;color:#17352d;outline:none}textarea{min-height:90px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:#0b7a57;box-shadow:0 0 0 3px #0b7a5712}.field{margin-bottom:12px}.full{grid-column:1/-1}.row{display:flex;gap:9px;flex-wrap:wrap}.btn{border:0;border-radius:13px;padding:12px 15px;font:inherit;font-weight:900;cursor:pointer}.primary{background:#075b43;color:#fff}.secondary{background:#edf5f1;color:#075b43}.danger{background:#fff0f2;color:#b4233d}.status{margin-top:12px;padding:12px;border-radius:13px;background:#f5faf7;border:1px solid #dcebe3;font-size:12px;display:none}.status.show{display:block}.status.ok{background:#effaf5;color:#075b43}.status.err{background:#fff1f2;color:#b4233d}.hint{font-size:11px;line-height:1.7;color:#71827b;margin-top:7px}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf5f1;color:#075b43;font-size:11px;font-weight:900}.preview{padding:15px;border:1px dashed #cddbd4;border-radius:16px;background:#fbfdfc}.preview h3{margin:0 0 6px}.preview p{margin:4px 0;color:#64746e;font-size:13px;line-height:1.7}.small{font-size:10px;color:#87958f}.token{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;direction:ltr;text-align:left}.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><h1>🎁 لوحة تحكم مفاجأة بزار</h1><p>غيّر الحملة والجائزة والمحتوى من مكان واحد — والـQR يبقى نفسه.</p></header>
+<section class="panel">
+<h2>🔐 الاتصال بالمستودع</h2>
+<div class="field"><label>GitHub Fine-grained Token</label><input id="token" class="token" type="password" autocomplete="off" placeholder="الصق الرمز هنا"></div>
+<div class="hint">أنشئ Fine-grained token بصلاحية <b>Contents: Read and write</b> لهذا المستودع فقط. الرمز لا يُحفظ في الصفحة ولا في Local Storage.</div>
+<div class="row" style="margin-top:12px"><button class="btn primary" id="load">تحميل الإعدادات</button><span class="badge">hamadz1992/belma3qoul</span><span class="badge">gh-pages-surprise</span></div>
+</section>
+<section class="panel">
+<h2>⚙️ الحملة</h2>
+<div class="grid">
+<div class="field"><label>الحملة / Campaign ID</label><input id="campaignId"></div>
+<div class="field"><label>الحالة</label><select id="enabled"><option value="true">مفعلة</option><option value="false">متوقفة</option></select></div>
+<div class="field"><label>عدد الفائزين</label><input id="maxWinners" type="number" min="1" max="100000"></div>
+<div class="field"><label>نوع المفاجأة</label><select id="type"><option value="gift">هدية</option><option value="discount">خصم</option><option value="receipt">وصل</option><option value="link">رابط</option><option value="image">صورة / ملصق</option></select></div>
+</div>
+</section>
+<section class="panel">
+<h2>✍️ المحتوى</h2>
+<div class="grid">
+<div class="field"><label>العنوان</label><input id="title"></div>
+<div class="field"><label>العبارة الرئيسية</label><input id="headline"></div>
+<div class="field full"><label>الوصف</label><textarea id="description"></textarea></div>
+<div class="field"><label>نص الزر</label><input id="actionText"></div>
+<div class="field"><label>النص عند الفوز</label><input id="winnerText"></div>
+<div class="field full"><label>تفاصيل رسالة الفوز</label><textarea id="winnerDescription"></textarea></div>
+<div class="field"><label>النص عند انتهاء الجوائز</label><input id="endedText"></div>
+<div class="field"><label>تفاصيل رسالة الانتهاء</label><textarea id="endedDescription"></textarea></div>
+</div>
+</section>
+<section class="panel">
+<h2>🎁 الجائزة</h2>
+<div class="grid">
+<div class="field"><label>اسم الجائزة</label><input id="prizeTitle"></div>
+<div class="field"><label>تفاصيل الجائزة</label><input id="prizeText"></div>
+<div class="field full"><label>رابط خارجي</label><input id="externalLink" type="url" dir="ltr" placeholder="https://..."></div>
+<div class="field full"><label>رابط صورة / ملصق</label><input id="imageUrl" type="url" dir="ltr" placeholder="https://..."></div>
+</div>
+</section>
+<section class="panel">
+<h2>👀 معاينة</h2>
+<div class="preview"><h3 id="pTitle">مفاجأة بزار</h3><p id="pHead"></p><p id="pDesc"></p><p><b id="pPrize"></b></p></div>
+</section>
+<section class="panel">
+<div class="row"><button class="btn primary" id="save">💾 حفظ التغييرات</button><button class="btn secondary" id="newRound">🔄 جولة جديدة</button><button class="btn danger" id="stop">⏸ إيقاف الجولة</button></div>
+<div id="status" class="status"></div>
+<div class="hint">«جولة جديدة» تغيّر Campaign ID، وبذلك يبدأ عدّاد الفائزين من الصفر دون تغيير رمز QR.</div>
+</section>
+</div>
+<script>
+const owner='hamadz1992',repo='belma3qoul',branch='gh-pages-surprise',path='config.js';
+let fileSha='';let token='';
+const ids=['campaignId','enabled','maxWinners','type','title','headline','description','actionText','winnerText','winnerDescription','endedText','endedDescription','prizeTitle','prizeText','externalLink','imageUrl'];
+const $=id=>document.getElementById(id);
+function current(){const o={};ids.forEach(id=>o[id]=$(id).value);o.enabled=o.enabled==='true';o.maxWinners=Math.max(1,Number(o.maxWinners||1));return o}
+function setFields(c){ids.forEach(id=>{if(c[id]!==undefined)$(id).value=String(c[id]);});updatePreview()}
+function updatePreview(){const c=current();$('pTitle').textContent=c.title||'مفاجأة بزار';$('pHead').textContent=c.headline||'';$('pDesc').textContent=c.description||'';$('pPrize').textContent=(c.prizeTitle||'🎁 الجائزة')+': '+(c.prizeText||'')}
+function notice(text,ok=true){const s=$('status');s.className='status show '+(ok?'ok':'err');s.textContent=text}
+function utf8b64(text){const bytes=new TextEncoder().encode(text);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin)}
+function b64utf8(b64){const bin=atob(b64.replace(/\n/g,''));const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)}
+async function api(url,opts={}){const h=opts.headers||{};h.Authorization='Bearer '+token;h.Accept='application/vnd.github+json';h['X-GitHub-Api-Version']='2022-11-28';h['Content-Type']='application/json';const r=await fetch(url,{...opts,headers:h});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||('GitHub HTTP '+r.status));return d}
+$('load').onclick=async()=>{token=$('token').value.trim();if(!token)return notice('أدخل GitHub Token أولًا.',false);try{const d=await api(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`);fileSha=d.sha;const cfgText=b64utf8(d.content);const m=cfgText.match(/window\.SURPRISE_CONFIG\s*=\s*(\{[\s\S]*\})\s*;?/);if(!m)throw new Error('لم أتعرف على صيغة config.js');const c=Function('return '+m[1])();setFields(c);notice('تم تحميل الإعدادات بنجاح ✅');}catch(e){notice('فشل التحميل: '+e.message,false)}};
+$('save').onclick=async()=>{if(!token||!fileSha)return notice('اضغط «تحميل الإعدادات» أولًا.',false);try{const c=current();const text='window.SURPRISE_CONFIG='+JSON.stringify(c,null,2)+';\n';const d=await api(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{method:'PUT',body:JSON.stringify({message:'Update surprise campaign settings',content:utf8b64(text),sha:fileSha,branch})});fileSha=d.content.sha||fileSha;notice('تم حفظ الإعدادات ونشر التعديل في GitHub ✅');}catch(e){notice('فشل الحفظ: '+e.message,false)}};
+$('newRound').onclick=()=>{$('campaignId').value='round-'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);updatePreview();notice('تم إنشاء رقم جولة جديد. اضغط «حفظ التغييرات» لتفعيله ✅')};
+$('stop').onclick=()=>{$('enabled').value='false';updatePreview();notice('تم إيقاف الجولة في النموذج. اضغط «حفظ التغييرات» لتطبيقه ✅')};
+ids.forEach(id=>$(id).addEventListener('input',updatePreview));
+</script>
+</body>
+</html>

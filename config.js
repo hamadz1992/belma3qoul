@@ -14,5 +14,5 @@ window.SURPRISE_CONFIG={
   "prizeTitle": "🎁 الجائزة الحالية",
   "prizeText": "مفاجأة خاصة من بزار كل شيء بالمعقول",
   "externalLink": "",
-  "imageUrl": "https://hamadz1992.github.io/belma3qoul/assets/uploads/prize-1786991855336.webp"
+  "imageUrl": "https://raw.githubusercontent.com/hamadz1992/belma3qoul/gh-pages-surprise/assets/uploads/prize-1786991855336.webp"
 };

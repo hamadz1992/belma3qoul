@@ -1,5 +1,5 @@
 window.SURPRISE_CONFIG={
-  "campaignId": "round-20260817182840",
+  "campaignId": "round-20260817183728",
   "enabled": true,
   "maxWinners": 5,
   "type": "receipt",
@@ -14,5 +14,5 @@ window.SURPRISE_CONFIG={
   "prizeTitle": "🎁 الجائزة الحالية",
   "prizeText": "مفاجأة خاصة من بزار كل شيء بالمعقول",
   "externalLink": "",
-  "imageUrl": ""
+  "imageUrl": "https://hamadz1992.github.io/belma3qoul/assets/uploads/prize-1786991855336.webp"
 };

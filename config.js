@@ -1,5 +1,5 @@
 window.SURPRISE_CONFIG={
-  "campaignId": "round-20260817183728",
+  "campaignId": "round-20260817213000",
   "enabled": true,
   "maxWinners": 5,
   "type": "receipt",

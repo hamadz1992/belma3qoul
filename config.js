@@ -1,5 +1,5 @@
 window.SURPRISE_CONFIG={
-  "campaignId": "2026-08-17-test-01",
+  "campaignId": "round-20260817181344",
   "enabled": true,
   "maxWinners": 1,
   "type": "gift",
@@ -13,6 +13,6 @@ window.SURPRISE_CONFIG={
   "endedDescription": "سبقك فائز آخر وحصل على الجائزة. تابعنا للمفاجأة القادمة 🎁",
   "prizeTitle": "🎁 الجائزة الحالية",
   "prizeText": "مفاجأة خاصة من بزار كل شيء بالمعقول",
-  "externalLink": "",
+  "externalLink": "https://baridiweb.poste.dz/rb/web/pages/operationHistory.xhtml",
   "imageUrl": ""
 };

@@ -13,6 +13,6 @@ window.SURPRISE_CONFIG={
   "endedDescription": "سبقك فائز آخر وحصل على الجائزة. تابعنا للمفاجأة القادمة 🎁",
   "prizeTitle": "🎁 الجائزة الحالية",
   "prizeText": "مفاجأة خاصة من بزار كل شيء بالمعقول",
-  "externalLink": "https://baridiweb.poste.dz/rb/web/pages/operationHistory.xhtml",
+  "externalLink": "",
   "imageUrl": ""
 };

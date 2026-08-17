@@ -1,8 +1,8 @@
 window.SURPRISE_CONFIG={
-  "campaignId": "round-20260817181344",
+  "campaignId": "round-20260817182840",
   "enabled": true,
   "maxWinners": 5,
-  "type": "link",
+  "type": "receipt",
   "title": "مفاجأة بزار",
   "headline": "🎁 افتح المفاجأة… وقد تكون من الفائزين!",
   "description": "مفاجأة خاصة من بزار كل شيء بالمعقول. أول فائز فقط يحصل على الجائزة في هذه الجولة.",

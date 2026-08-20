@@ -12,7 +12,7 @@ import ContactLinksPage from '../pages/admin/ContactLinksPage'
 import AdBoardPage from '../pages/admin/AdBoardPage'
 import AnalyticsPage from '../pages/admin/AnalyticsPage'
 import AdminGuard from '../pages/admin/AdminGuard'
-import AdminLayout from '../layouts/admin/AdminLayout'
+import AdminLayout from '../pages/admin/AdminLayout'
 
 function NotFoundPage() {
   return <Navigate to="/#home" replace />

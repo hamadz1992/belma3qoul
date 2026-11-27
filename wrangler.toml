@@ -1,0 +1,9 @@
+name = "belma3qoul"
+compatibility_date = "2026-11-27"
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "belma3qoul-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"

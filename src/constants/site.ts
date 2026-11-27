@@ -28,6 +28,7 @@ export const siteConfig = {
 export const navLinks = [
   { label: 'الرئيسية', href: '#home' },
   { label: 'المنشورات', href: '#featured' },
+  { label: 'الجوائز', href: '/prizes' },
   { label: 'آخر المنشورات', href: '#latest' },
   { label: 'الموقع', href: '#location' },
 ] as const

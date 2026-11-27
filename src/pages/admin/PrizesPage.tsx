@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 
 type Prize = {
   id: string
@@ -49,7 +50,7 @@ export default function AdminPrizesPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  async function savePrize(event: React.FormEvent<HTMLFormElement>) {
+  async function savePrize(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSaving(true)
     setError('')

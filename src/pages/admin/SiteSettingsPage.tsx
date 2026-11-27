@@ -33,6 +33,7 @@ const defaultNavigation: NavigationItem[] = [
   { id: 'offers', icon: '🔥', label: 'عروضنا الحالية', href: '#offers', enabled: true },
   { id: 'latest', icon: '📰', label: 'آخر المنشورات', href: '#latest', enabled: true },
   { id: 'featured', icon: '⭐', label: 'المنشورات المميزة', href: '#featured', enabled: true },
+  { id: 'prizes', icon: '🎁', label: 'صفحة الجوائز', href: '/prizes', enabled: true },
   { id: 'location', icon: '📍', label: 'موقعنا', href: '#location', enabled: true },
 ]
 

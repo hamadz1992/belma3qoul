@@ -5,5 +5,5 @@ pages_build_output_dir = "./dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "belma3qoul-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "a8986e93-e65e-49fc-ae9a-3345f184eded"
 migrations_dir = "migrations"
